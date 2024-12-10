@@ -16,7 +16,7 @@ readme = "README.md"
 license = "MIT OR Apache-2.0"
 authors = ["Bitcoin Developers"]
 edition = "2021"
-rust-version = "1.63"
+rust-version = "1.73"
 
 [lib]
 crate-type = ["cdylib", "rlib"]
