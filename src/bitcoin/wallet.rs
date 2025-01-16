@@ -120,8 +120,8 @@ impl Wallet {
         Ok(psbt.into())
     }
 
-    pub fn sign(&self, psbt: Psbt) -> JsResult<bool> {
-        self.0.sign(&mut psbt.into(), SignOptions::default())?;
+    pub fn sign(&self, psbt: &mut Psbt) -> JsResult<bool> {
+        self.0.sign(psbt, SignOptions::default())?;
         Ok(true)
     }
 }

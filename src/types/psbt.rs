@@ -1,11 +1,11 @@
-use std::ops::Deref;
+use std::ops::{Deref, DerefMut};
 
-use bitcoin::{Amount as BdkAmount, FeeRate as BdkFeeRate, Psbt as BdkPsbt, ScriptBuf};
+use bitcoin::{Amount as BdkAmount, FeeRate as BdkFeeRate, Psbt as BdkPsbt, ScriptBuf as BdkScriptBuf};
 use wasm_bindgen::prelude::wasm_bindgen;
 
 use crate::result::JsResult;
 
-use super::{AddressInfo, Amount, Transaction};
+use super::{Address, Amount, Transaction};
 
 /// A Partially Signed Transaction.
 #[wasm_bindgen]
@@ -17,6 +17,12 @@ impl Deref for Psbt {
 
     fn deref(&self) -> &Self::Target {
         &self.0
+    }
+}
+
+impl DerefMut for Psbt {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
     }
 }
 
@@ -44,19 +50,19 @@ impl From<Psbt> for BdkPsbt {
 #[wasm_bindgen]
 #[derive(Debug)]
 pub struct Recipient {
-    address: AddressInfo,
+    address: Address,
     amount: Amount,
 }
 
 #[wasm_bindgen]
 impl Recipient {
     #[wasm_bindgen(constructor)]
-    pub fn new(address: AddressInfo, amount: Amount) -> Self {
+    pub fn new(address: Address, amount: Amount) -> Self {
         Recipient { address, amount }
     }
 
     #[wasm_bindgen(getter)]
-    pub fn address(&self) -> AddressInfo {
+    pub fn address(&self) -> Address {
         self.address.clone()
     }
 
@@ -66,7 +72,7 @@ impl Recipient {
     }
 }
 
-impl From<Recipient> for (ScriptBuf, BdkAmount) {
+impl From<Recipient> for (BdkScriptBuf, BdkAmount) {
     fn from(r: Recipient) -> Self {
         (r.address().script_pubkey(), r.amount().into())
     }
@@ -85,6 +91,14 @@ impl Deref for FeeRate {
 
     fn deref(&self) -> &Self::Target {
         &self.0
+    }
+}
+
+#[wasm_bindgen]
+impl FeeRate {
+    #[wasm_bindgen(constructor)]
+    pub fn new(sat_vb: u64) -> Self {
+        FeeRate(BdkFeeRate::from_sat_per_vb_unchecked(sat_vb))
     }
 }
 

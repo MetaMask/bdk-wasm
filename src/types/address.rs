@@ -1,9 +1,12 @@
-use std::ops::Deref;
+use std::{ops::Deref, str::FromStr};
 
 use bdk_wallet::{bitcoin::AddressType as BdkAddressType, AddressInfo as BdkAddressInfo};
+use bitcoin::Address as BdkAddress;
 use wasm_bindgen::prelude::wasm_bindgen;
 
-use super::KeychainKind;
+use crate::result::JsResult;
+
+use super::{KeychainKind, Network};
 
 /// A derived address and the index it was found at.
 #[wasm_bindgen]
@@ -52,6 +55,39 @@ impl Deref for AddressInfo {
 impl From<BdkAddressInfo> for AddressInfo {
     fn from(inner: BdkAddressInfo) -> Self {
         AddressInfo(inner)
+    }
+}
+
+/// An owned, growable script.
+#[wasm_bindgen]
+#[derive(Debug, Clone)]
+pub struct Address(BdkAddress);
+
+impl Deref for Address {
+    type Target = BdkAddress;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+#[wasm_bindgen]
+impl Address {
+    pub fn new(address_str: &str, network: Network) -> JsResult<Self> {
+        let address = BdkAddress::from_str(address_str)?.require_network(network.into())?;
+        Ok(Address(address))
+    }
+}
+
+impl From<BdkAddress> for Address {
+    fn from(inner: BdkAddress) -> Self {
+        Address(inner)
+    }
+}
+
+impl From<Address> for BdkAddress {
+    fn from(address: Address) -> Self {
+        address.0
     }
 }
 

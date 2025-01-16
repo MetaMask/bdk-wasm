@@ -7,7 +7,7 @@ extern crate wasm_bindgen_test;
 use bitcoindevkit::{
     bitcoin::{EsploraClient, Wallet},
     set_panic_hook,
-    types::{DescriptorPair, KeychainKind, Network},
+    types::{Address, Amount, DescriptorPair, FeeRate, KeychainKind, Network, Recipient},
 };
 use wasm_bindgen_test::*;
 
@@ -18,6 +18,7 @@ const PARALLEL_REQUESTS: usize = 1;
 const NETWORK: Network = Network::Signet;
 const EXTERNAL_DESC: &str = "wpkh([aafa6322/84'/1'/0']tpubDCfvzhCuifJtWDVdrBcPvZU7U5uyixL7QULk8hXA7KjqiNnry9Te1nwm7yStqenPCQhy5MwzxKkLBD2GmKNgvMYqXgo53iYqQ7Vu4vQbN2N/0/*)#mlua264t";
 const INTERNAL_DESC: &str = "wpkh([aafa6322/84'/1'/0']tpubDCfvzhCuifJtWDVdrBcPvZU7U5uyixL7QULk8hXA7KjqiNnry9Te1nwm7yStqenPCQhy5MwzxKkLBD2GmKNgvMYqXgo53iYqQ7Vu4vQbN2N/1/*)#2teuh09n";
+const RECIPIENT_ADDRESS: &str = "";
 
 #[wasm_bindgen_test]
 async fn test_esplora_client() {
@@ -63,4 +64,17 @@ async fn test_esplora_client() {
 
     let loaded_wallet = Wallet::load(wallet.take_staged().unwrap()).expect("load");
     assert_eq!(loaded_wallet.balance(), wallet.balance());
+
+    let recipient = Address::new(RECIPIENT_ADDRESS, NETWORK).expect("recipient_address");
+    let amount = Amount::from_sat(10000);
+    let mut psbt = wallet
+        .build_tx(FeeRate::new(5), vec![Recipient::new(recipient, amount)])
+        .expect("build_tx");
+
+    assert!(wallet.sign(&mut psbt).expect("sign"));
+
+    let tx = psbt.extract_tx().expect("extract_tx");
+    blockchain_client.broadcast(&tx).await.expect("broadcast");
+
+    web_sys::console::log_1(&tx.compute_txid().into());
 }
