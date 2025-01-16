@@ -8,7 +8,7 @@ use wasm_bindgen::prelude::wasm_bindgen;
 
 use crate::{
     result::JsResult,
-    types::{FullScanRequest, SyncRequest, Update},
+    types::{FullScanRequest, SyncRequest, Transaction, Update},
 };
 use std::time::Duration;
 
@@ -45,6 +45,11 @@ impl EsploraClient {
         let request: BdkSyncRequest<(KeychainKind, u32)> = request.into();
         let result = self.client.sync(request, parallel_requests).await?;
         Ok(result.into())
+    }
+
+    pub async fn broadcast(&self, transaction: &Transaction) -> JsResult<()> {
+        self.client.broadcast(transaction).await?;
+        Ok(())
     }
 }
 

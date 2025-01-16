@@ -7,7 +7,7 @@ use super::KeychainKind;
 
 /// A derived address and the index it was found at.
 #[wasm_bindgen]
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct AddressInfo {
     address: BdkAddressInfo,
 }

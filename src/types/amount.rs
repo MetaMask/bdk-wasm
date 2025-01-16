@@ -8,7 +8,7 @@ use wasm_bindgen::prelude::wasm_bindgen;
 /// The [Amount] type can be used to express Bitcoin amounts that support
 /// arithmetic and conversion to various denominations.
 #[wasm_bindgen]
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Amount {
     amount: BdkAmount,
 }
@@ -46,6 +46,12 @@ impl Deref for Amount {
 impl From<BdkAmount> for Amount {
     fn from(amount: BdkAmount) -> Self {
         Amount { amount }
+    }
+}
+
+impl From<Amount> for BdkAmount {
+    fn from(amount: Amount) -> Self {
+        amount.amount
     }
 }
 

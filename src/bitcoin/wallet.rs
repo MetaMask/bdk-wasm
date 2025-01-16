@@ -1,4 +1,4 @@
-use bdk_wallet::Wallet as BdkWallet;
+use bdk_wallet::{SignOptions, Wallet as BdkWallet};
 use js_sys::Date;
 use serde_wasm_bindgen::to_value;
 use wasm_bindgen::{prelude::wasm_bindgen, JsError, JsValue};
@@ -6,8 +6,8 @@ use wasm_bindgen::{prelude::wasm_bindgen, JsError, JsValue};
 use crate::{
     result::JsResult,
     types::{
-        AddressInfo, Balance, ChangeSet, CheckPoint, DescriptorPair, FullScanRequest, KeychainKind, Network,
-        SyncRequest, Update,
+        AddressInfo, Balance, ChangeSet, CheckPoint, DescriptorPair, FeeRate, FullScanRequest, KeychainKind, Network,
+        Psbt, Recipient, SyncRequest, Update,
     },
 };
 
@@ -112,5 +112,21 @@ impl Wallet {
 
     pub fn public_descriptor(&self, keychain: KeychainKind) -> String {
         self.wallet.public_descriptor(keychain.into()).to_string()
+    }
+
+    pub fn build_tx(&mut self, fee_rate: FeeRate, recipients: Vec<Recipient>) -> JsResult<Psbt> {
+        let mut builder = self.wallet.build_tx();
+
+        builder
+            .set_recipients(recipients.into_iter().map(Into::into).collect())
+            .fee_rate(fee_rate.into());
+
+        let psbt = builder.finish()?;
+        Ok(psbt.into())
+    }
+
+    pub fn sign(&self, psbt: Psbt) -> JsResult<bool> {
+        self.wallet.sign(&mut psbt.into(), SignOptions::default())?;
+        Ok(true)
     }
 }
