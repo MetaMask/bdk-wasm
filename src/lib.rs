@@ -1,5 +1,4 @@
 pub mod bitcoin;
-pub mod storage;
 pub mod types;
 mod utils;
 

@@ -74,7 +74,7 @@ CC = "/opt/homebrew/opt/llvm/bin/clang"
 wasm-pack build
 ```
 
-> Choose your desired features when building: `wasm-pack build --features "esplora default snap bitcoind"`
+> Choose your desired features when building: `--features "esplora"`
 
 ### Test in Headless Browsers with `wasm-pack test`
 

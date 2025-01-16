@@ -4,7 +4,7 @@
 
 extern crate wasm_bindgen_test;
 
-use bdk_wasm::{
+use bitcoindevkit::{
     bitcoin::{EsploraClient, Wallet},
     set_panic_hook,
     types::{DescriptorPair, KeychainKind, Network},
