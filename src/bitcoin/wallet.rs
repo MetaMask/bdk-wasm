@@ -1,4 +1,5 @@
 use bdk_wallet::{SignOptions, Wallet as BdkWallet};
+use bitcoin::Txid;
 use js_sys::Date;
 use serde_wasm_bindgen::to_value;
 use wasm_bindgen::{prelude::wasm_bindgen, JsError, JsValue};
@@ -97,6 +98,16 @@ impl Wallet {
             .collect()
     }
 
+    pub fn get_tx(&self, txid_str: &str) -> JsResult<JsValue> {
+        let txid: Txid = txid_str.parse::<Txid>()?;
+        let wallet_tx = self.0.get_tx(txid);
+
+        match wallet_tx {
+            Some(tx) => Ok(to_value(&tx.tx_node.tx)?),
+            None => Ok(JsValue::null()),
+        }
+    }
+
     pub fn latest_checkpoint(&self) -> CheckPoint {
         self.0.latest_checkpoint().into()
     }
@@ -121,7 +132,7 @@ impl Wallet {
     }
 
     pub fn sign(&self, psbt: &mut Psbt) -> JsResult<bool> {
-        self.0.sign(psbt, SignOptions::default())?;
-        Ok(true)
+        let result = self.0.sign(psbt, SignOptions::default())?;
+        Ok(result)
     }
 }
