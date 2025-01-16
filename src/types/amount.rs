@@ -9,29 +9,27 @@ use wasm_bindgen::prelude::wasm_bindgen;
 /// arithmetic and conversion to various denominations.
 #[wasm_bindgen]
 #[derive(Debug, Clone)]
-pub struct Amount {
-    amount: BdkAmount,
-}
+pub struct Amount(BdkAmount);
 
 #[wasm_bindgen]
 impl Amount {
     /// Gets the number of satoshis in this [`Amount`].
     pub fn to_sat(&self) -> u64 {
-        self.amount.to_sat()
+        self.0.to_sat()
     }
 
     /// Express this [`Amount`] as a floating-point value in Bitcoin.
     ///
     /// Please be aware of the risk of using floating-point numbers.
     pub fn to_btc(&self) -> f64 {
-        self.amount.to_btc()
+        self.0.to_btc()
     }
 
     /// Express this [Amount] as a floating-point value in the given denomination.
     ///
     /// Please be aware of the risk of using floating-point numbers.
     pub fn to_float_in(&self, denom: Denomination) -> f64 {
-        self.amount.to_float_in(denom.into())
+        self.0.to_float_in(denom.into())
     }
 }
 
@@ -39,19 +37,19 @@ impl Deref for Amount {
     type Target = BdkAmount;
 
     fn deref(&self) -> &Self::Target {
-        &self.amount
+        &self.0
     }
 }
 
 impl From<BdkAmount> for Amount {
-    fn from(amount: BdkAmount) -> Self {
-        Amount { amount }
+    fn from(inner: BdkAmount) -> Self {
+        Amount(inner)
     }
 }
 
 impl From<Amount> for BdkAmount {
     fn from(amount: Amount) -> Self {
-        amount.amount
+        amount.0
     }
 }
 

@@ -12,27 +12,25 @@ use wasm_bindgen::prelude::wasm_bindgen;
 /// A client sync fetches relevant chain data for a known list of scripts, transaction ids and
 /// outpoints.
 #[wasm_bindgen]
-pub struct SyncRequest {
-    request: BdkSyncRequest<(KeychainKind, u32)>,
-}
+pub struct SyncRequest(BdkSyncRequest<(KeychainKind, u32)>);
 
 impl Deref for SyncRequest {
     type Target = BdkSyncRequest<(KeychainKind, u32)>;
 
     fn deref(&self) -> &Self::Target {
-        &self.request
+        &self.0
     }
 }
 
 impl From<BdkSyncRequest<(KeychainKind, u32)>> for SyncRequest {
-    fn from(request: BdkSyncRequest<(KeychainKind, u32)>) -> Self {
-        SyncRequest { request }
+    fn from(inner: BdkSyncRequest<(KeychainKind, u32)>) -> Self {
+        SyncRequest(inner)
     }
 }
 
 impl From<SyncRequest> for BdkSyncRequest<(KeychainKind, u32)> {
     fn from(request: SyncRequest) -> Self {
-        request.request
+        request.0
     }
 }
 
@@ -43,65 +41,61 @@ impl From<SyncRequest> for BdkSyncRequest<(KeychainKind, u32)> {
 /// generally only used when importing or restoring previously used keychains in which the list of
 /// used scripts is not known.
 #[wasm_bindgen]
-pub struct FullScanRequest {
-    request: BdkFullScanRequest<KeychainKind>,
-}
+pub struct FullScanRequest(BdkFullScanRequest<KeychainKind>);
 
 impl Deref for FullScanRequest {
     type Target = BdkFullScanRequest<KeychainKind>;
 
     fn deref(&self) -> &Self::Target {
-        &self.request
+        &self.0
     }
 }
 
 impl From<BdkFullScanRequest<KeychainKind>> for FullScanRequest {
-    fn from(request: BdkFullScanRequest<KeychainKind>) -> Self {
-        FullScanRequest { request }
+    fn from(inner: BdkFullScanRequest<KeychainKind>) -> Self {
+        FullScanRequest(inner)
     }
 }
 
 impl From<FullScanRequest> for BdkFullScanRequest<KeychainKind> {
     fn from(request: FullScanRequest) -> Self {
-        request.request
+        request.0
     }
 }
 
 /// An update to [`Wallet`].
 #[wasm_bindgen]
 #[derive(Debug)]
-pub struct Update {
-    update: BdkUpdate,
-}
+pub struct Update(BdkUpdate);
 
 impl Deref for Update {
     type Target = BdkUpdate;
 
     fn deref(&self) -> &Self::Target {
-        &self.update
+        &self.0
     }
 }
 
 impl From<BdkUpdate> for Update {
-    fn from(update: BdkUpdate) -> Self {
-        Update { update }
+    fn from(inner: BdkUpdate) -> Self {
+        Update(inner)
     }
 }
 
 impl From<Update> for BdkUpdate {
     fn from(update: Update) -> Self {
-        update.update
+        update.0
     }
 }
 
 impl From<BdkFullScanResponse<KeychainKind>> for Update {
     fn from(result: BdkFullScanResponse<KeychainKind>) -> Self {
-        Update { update: result.into() }
+        Update(result.into())
     }
 }
 
 impl From<BdkSyncResponse> for Update {
     fn from(result: BdkSyncResponse) -> Self {
-        Update { update: result.into() }
+        Update(result.into())
     }
 }

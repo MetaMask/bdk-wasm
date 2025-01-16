@@ -3,7 +3,7 @@ use wasm_bindgen::prelude::wasm_bindgen;
 
 /// The cryptocurrency network to act on.
 #[wasm_bindgen]
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy)]
 pub enum Network {
     /// Mainnet Bitcoin.
     Bitcoin = "bitcoin",

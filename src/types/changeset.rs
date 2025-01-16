@@ -13,45 +13,39 @@ use crate::result::JsResult;
 /// A changeset for [`Wallet`].
 #[wasm_bindgen]
 #[derive(Debug, PartialEq)]
-pub struct ChangeSet {
-    changeset: BdkChangeSet,
-}
+pub struct ChangeSet(BdkChangeSet);
 
 #[wasm_bindgen]
 impl ChangeSet {
     /// Merge another [`ChangeSet`] into itself.
     pub fn merge(&mut self, other: ChangeSet) {
-        self.changeset.merge(other.into());
+        self.0.merge(other.into());
     }
 
     pub fn is_empty(&self) -> bool {
-        self.changeset.is_empty()
+        self.0.is_empty()
     }
 
     /// Serialize `ChangeSet` to JSON.
     pub fn to_json(&self) -> String {
-        to_string(&self.changeset).expect("Serialization should not fail")
+        to_string(&self.0).expect("Serialization should not fail")
     }
 
     /// Serialize `ChangeSet` to JSON compatible with WASM.
     pub fn to_js(&self) -> JsValue {
-        to_value(&self.changeset).expect("Serialization should not fail")
+        to_value(&self.0).expect("Serialization should not fail")
     }
 
     /// Create a new `ChangeSet` from a JSON string.
     #[wasm_bindgen]
     pub fn from_json(val: &str) -> JsResult<ChangeSet> {
-        Ok(ChangeSet {
-            changeset: from_str(val)?,
-        })
+        Ok(ChangeSet(from_str(val)?))
     }
 
     /// Create a new `ChangeSet` from a JS object.
     #[wasm_bindgen]
     pub fn from_js(js_value: JsValue) -> JsResult<ChangeSet> {
-        Ok(ChangeSet {
-            changeset: from_value(js_value)?,
-        })
+        Ok(ChangeSet(from_value(js_value)?))
     }
 }
 
@@ -59,18 +53,18 @@ impl Deref for ChangeSet {
     type Target = BdkChangeSet;
 
     fn deref(&self) -> &Self::Target {
-        &self.changeset
+        &self.0
     }
 }
 
 impl From<BdkChangeSet> for ChangeSet {
-    fn from(changeset: BdkChangeSet) -> Self {
-        ChangeSet { changeset }
+    fn from(inner: BdkChangeSet) -> Self {
+        ChangeSet(inner)
     }
 }
 
 impl From<ChangeSet> for BdkChangeSet {
     fn from(changeset: ChangeSet) -> Self {
-        changeset.changeset
+        changeset.0
     }
 }

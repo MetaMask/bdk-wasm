@@ -8,28 +8,26 @@ use super::KeychainKind;
 /// A derived address and the index it was found at.
 #[wasm_bindgen]
 #[derive(Debug, Clone)]
-pub struct AddressInfo {
-    address: BdkAddressInfo,
-}
+pub struct AddressInfo(BdkAddressInfo);
 
 #[wasm_bindgen]
 impl AddressInfo {
     /// Child index of this address
     #[wasm_bindgen(getter)]
     pub fn index(&self) -> u32 {
-        self.address.index
+        self.0.index
     }
 
     /// Address
     #[wasm_bindgen(getter)]
     pub fn address(&self) -> String {
-        self.address.to_string()
+        self.0.to_string()
     }
 
     /// Type of keychain
     #[wasm_bindgen(getter)]
     pub fn keychain(&self) -> KeychainKind {
-        self.address.keychain.into()
+        self.0.keychain.into()
     }
 
     /// Gets the address type of the address.
@@ -39,7 +37,7 @@ impl AddressInfo {
     /// None if unknown, non-standard or related to the future witness version.
     #[wasm_bindgen(getter)]
     pub fn address_type(&self) -> Option<AddressType> {
-        self.address.address_type().map(Into::into)
+        self.0.address_type().map(Into::into)
     }
 }
 
@@ -47,13 +45,13 @@ impl Deref for AddressInfo {
     type Target = BdkAddressInfo;
 
     fn deref(&self) -> &Self::Target {
-        &self.address
+        &self.0
     }
 }
 
 impl From<BdkAddressInfo> for AddressInfo {
-    fn from(address: BdkAddressInfo) -> Self {
-        AddressInfo { address }
+    fn from(inner: BdkAddressInfo) -> Self {
+        AddressInfo(inner)
     }
 }
 

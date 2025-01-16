@@ -12,9 +12,7 @@ use crate::{
 };
 
 #[wasm_bindgen]
-pub struct Wallet {
-    wallet: BdkWallet,
-}
+pub struct Wallet(BdkWallet);
 
 #[wasm_bindgen]
 impl Wallet {
@@ -23,7 +21,7 @@ impl Wallet {
             .network(network.into())
             .create_wallet_no_persist()?;
 
-        Ok(Wallet { wallet })
+        Ok(Wallet(wallet))
     }
 
     pub fn load(changeset: ChangeSet) -> JsResult<Wallet> {
@@ -34,15 +32,15 @@ impl Wallet {
             None => return Err(JsError::new("Failed to load wallet, check the changeset")),
         };
 
-        Ok(Wallet { wallet })
+        Ok(Wallet(wallet))
     }
 
     pub fn start_full_scan(&self) -> FullScanRequest {
-        self.wallet.start_full_scan().build().into()
+        self.0.start_full_scan().build().into()
     }
 
     pub fn start_sync_with_revealed_spks(&self) -> SyncRequest {
-        self.wallet.start_sync_with_revealed_spks().build().into()
+        self.0.start_sync_with_revealed_spks().build().into()
     }
 
     pub fn apply_update(&mut self, update: Update) -> JsResult<()> {
@@ -50,72 +48,69 @@ impl Wallet {
     }
 
     pub fn apply_update_at(&mut self, update: Update, seen_at: u64) -> JsResult<()> {
-        self.wallet.apply_update_at(update, seen_at)?;
+        self.0.apply_update_at(update, seen_at)?;
         Ok(())
     }
 
     pub fn network(&self) -> Network {
-        self.wallet.network().into()
+        self.0.network().into()
     }
 
     pub fn balance(&self) -> Balance {
-        self.wallet.balance().into()
+        self.0.balance().into()
     }
 
     pub fn next_unused_address(&mut self, keychain: KeychainKind) -> AddressInfo {
-        self.wallet.next_unused_address(keychain.into()).into()
+        self.0.next_unused_address(keychain.into()).into()
     }
 
     pub fn peek_address(&self, keychain: KeychainKind, index: u32) -> AddressInfo {
-        self.wallet.peek_address(keychain.into(), index).into()
+        self.0.peek_address(keychain.into(), index).into()
     }
 
     pub fn reveal_next_address(&mut self, keychain: KeychainKind) -> AddressInfo {
-        self.wallet.reveal_next_address(keychain.into()).into()
+        self.0.reveal_next_address(keychain.into()).into()
     }
 
     pub fn reveal_addresses_to(&mut self, keychain: KeychainKind, index: u32) -> Vec<AddressInfo> {
-        self.wallet
+        self.0
             .reveal_addresses_to(keychain.into(), index)
             .map(Into::into)
             .collect()
     }
 
     pub fn list_unused_addresses(&self, keychain: KeychainKind) -> Vec<AddressInfo> {
-        self.wallet
-            .list_unused_addresses(keychain.into())
-            .map(Into::into)
-            .collect()
+        self.0.list_unused_addresses(keychain.into()).map(Into::into).collect()
     }
 
     pub fn list_unspent(&self) -> JsResult<Vec<JsValue>> {
-        self.wallet
+        self.0
             .list_unspent()
             .map(|output| to_value(&output).map_err(Into::into))
             .collect()
     }
 
     pub fn transactions(&self) -> JsResult<Vec<JsValue>> {
-        self.wallet
+        self.0
             .transactions()
             .map(|tx| to_value(&tx.tx_node.tx).map_err(Into::into))
             .collect()
     }
 
     pub fn latest_checkpoint(&self) -> CheckPoint {
-        self.wallet.latest_checkpoint().into()
+        self.0.latest_checkpoint().into()
     }
 
     pub fn take_staged(&mut self) -> Option<ChangeSet> {
-        self.wallet.take_staged().map(Into::into)
+        self.0.take_staged().map(Into::into)
     }
 
     pub fn public_descriptor(&self, keychain: KeychainKind) -> String {
-        self.wallet.public_descriptor(keychain.into()).to_string()
+        self.0.public_descriptor(keychain.into()).to_string()
     }
 
     pub fn build_tx(&mut self, fee_rate: FeeRate, recipients: Vec<Recipient>) -> JsResult<Psbt> {
-        let mut builder = self.wallet.build_tx();
+        let mut builder = self.0.build_tx();
 
         builder
             .set_recipients(recipients.into_iter().map(Into::into).collect())
@@ -126,7 +121,7 @@ impl Wallet {
     }
 
     pub fn sign(&self, psbt: Psbt) -> JsResult<bool> {
-        self.wallet.sign(&mut psbt.into(), SignOptions::default())?;
+        self.0.sign(&mut psbt.into(), SignOptions::default())?;
         Ok(true)
     }
 }
