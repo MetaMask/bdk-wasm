@@ -4,11 +4,10 @@
 
 extern crate wasm_bindgen_test;
 
-use bdk_wallet::bip39::Mnemonic;
 use bitcoindevkit::{
     bitcoin::{EsploraClient, Wallet},
-    seed_to_descriptor, set_panic_hook,
-    types::{Address, AddressType, Amount, DescriptorPair, FeeRate, KeychainKind, Network, Recipient},
+    set_panic_hook,
+    types::{Address, Amount, FeeRate, KeychainKind, Network, Recipient},
 };
 use wasm_bindgen_test::*;
 
@@ -18,17 +17,18 @@ const ESPLORA_URL: &str = "https://mutinynet.com/api";
 const STOP_GAP: usize = 5;
 const PARALLEL_REQUESTS: usize = 1;
 const NETWORK: Network = Network::Signet;
-const EXTERNAL_DESC: &str = "wpkh([aafa6322/84'/1'/0']tpubDCfvzhCuifJtWDVdrBcPvZU7U5uyixL7QULk8hXA7KjqiNnry9Te1nwm7yStqenPCQhy5MwzxKkLBD2GmKNgvMYqXgo53iYqQ7Vu4vQbN2N/0/*)#mlua264t";
-const INTERNAL_DESC: &str = "wpkh([aafa6322/84'/1'/0']tpubDCfvzhCuifJtWDVdrBcPvZU7U5uyixL7QULk8hXA7KjqiNnry9Te1nwm7yStqenPCQhy5MwzxKkLBD2GmKNgvMYqXgo53iYqQ7Vu4vQbN2N/1/*)#2teuh09n";
+const SEND_ADMOUNT: u64 = 1000;
+const FEE_RATE: u64 = 2;
 const RECIPIENT_ADDRESS: &str = "tb1qd28npep0s8frcm3y7dxqajkcy2m40eysplyr9v";
-const SEND_AMOUNT: u64 = 10000;
 
 #[wasm_bindgen_test]
 async fn test_esplora_client() {
     set_panic_hook();
 
-    let mut wallet =
-        Wallet::create(NETWORK, DescriptorPair::new(EXTERNAL_DESC.into(), INTERNAL_DESC.into())).expect("wallet");
+    let external_desc = "wpkh(tprv8ZgxMBicQKsPf6vydw7ixvsLKY79hmeXujBkGCNCApyft92yVYng2y28JpFZcneBYTTHycWSRpokhHE25GfHPBxnW5GpSm2dMWzEi9xxEyU/84'/1'/0'/0/*)#uel0vg9p";
+    let internal_desc = "wpkh(tprv8ZgxMBicQKsPf6vydw7ixvsLKY79hmeXujBkGCNCApyft92yVYng2y28JpFZcneBYTTHycWSRpokhHE25GfHPBxnW5GpSm2dMWzEi9xxEyU/84'/1'/0'/1/*)#dd6w3a4e";
+
+    let mut wallet = Wallet::create(NETWORK, external_desc.into(), internal_desc.into()).expect("wallet");
     let mut blockchain_client = EsploraClient::new(ESPLORA_URL).expect("esplora_client");
 
     let block_height = wallet.latest_checkpoint().height();
@@ -54,44 +54,30 @@ async fn test_esplora_client() {
     wallet.apply_update(update).expect("full_scan apply_update");
 
     let balance = wallet.balance();
-    assert!(balance.total().to_sat() > 0);
+    web_sys::console::log_2(&"balance: ".into(), &balance.total().to_sat().into());
+    assert!(balance.trusted_spendable().to_sat() > SEND_ADMOUNT);
 
-    let loaded_wallet = Wallet::load(wallet.take_staged().unwrap()).expect("load");
+    // Important to test that we can load the wallet from a changeset with the signing descriptors and be able to sign a transaction
+    // as the changeset does not contain the private signing information.
+    let mut loaded_wallet = Wallet::load(
+        wallet.take_staged().unwrap(),
+        Some(external_desc.into()),
+        Some(internal_desc.into()),
+    )
+    .expect("load");
     assert_eq!(loaded_wallet.balance(), wallet.balance());
-}
-
-#[wasm_bindgen_test]
-async fn test_send() {
-    set_panic_hook();
-
-    let seed = Mnemonic::parse("journey embrace permit coil indoor stereo welcome maid movie easy clock spider tent slush bright luxury awake waste legal modify awkward answer acid goose")
-        .unwrap()
-        .to_seed("");
-    let descriptors = seed_to_descriptor(&seed, NETWORK, AddressType::P2wpkh).expect("seed_to_descriptor");
-    let mut wallet = Wallet::create(NETWORK, descriptors).expect("wallet");
-    let mut blockchain_client = EsploraClient::new(ESPLORA_URL).expect("esplora_client");
-
-    let full_scan_request = wallet.start_full_scan();
-    let update = blockchain_client
-        .full_scan(full_scan_request, STOP_GAP, PARALLEL_REQUESTS)
-        .await
-        .expect("full_scan");
-    wallet.apply_update(update).expect("full_scan apply_update");
-
-    let balance = wallet.balance();
-    assert!(balance.total().to_sat() > SEND_AMOUNT);
-    web_sys::console::log_2(&"Balance: ".into(), &balance.total().to_btc().into());
 
     let recipient = Address::new(RECIPIENT_ADDRESS, NETWORK).expect("recipient_address");
-    let amount = Amount::from_sat(SEND_AMOUNT);
-    let mut psbt = wallet
-        .build_tx(FeeRate::new(2), vec![Recipient::new(recipient, amount)])
+    let amount = Amount::from_sat(SEND_ADMOUNT);
+    let mut psbt = loaded_wallet
+        .build_tx(FeeRate::new(FEE_RATE), vec![Recipient::new(recipient, amount)])
         .expect("build_tx");
 
-    assert!(wallet.sign(&mut psbt).expect("sign"));
+    let finalized = loaded_wallet.sign(&mut psbt).expect("sign");
+    assert!(finalized);
 
     let tx = psbt.extract_tx().expect("extract_tx");
     blockchain_client.broadcast(&tx).await.expect("broadcast");
 
-    web_sys::console::log_1(&tx.compute_txid().into());
+    web_sys::console::log_2(&"txid: ".into(), &tx.compute_txid().into());
 }

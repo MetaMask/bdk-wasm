@@ -24,7 +24,7 @@ async fn test_wallet() {
 
     let seed = Mnemonic::parse(MNEMONIC).unwrap().to_seed("");
     let descriptors = seed_to_descriptor(&seed, NETWORK, ADDRESS_TYPE).expect("seed_to_descriptor");
-    let mut wallet = Wallet::create(NETWORK, descriptors).expect("wallet");
+    let mut wallet = Wallet::create(NETWORK, descriptors.external(), descriptors.internal()).expect("wallet");
 
     let balance = wallet.balance();
     assert_eq!(balance.total().to_sat(), 0);
@@ -50,7 +50,7 @@ async fn test_changeset() {
 
     let seed = Mnemonic::parse(MNEMONIC).unwrap().to_seed("");
     let descriptors = seed_to_descriptor(&seed, NETWORK, ADDRESS_TYPE).expect("seed_to_descriptor");
-    let mut wallet = Wallet::create(NETWORK, descriptors).expect("wallet");
+    let mut wallet = Wallet::create(NETWORK, descriptors.external(), descriptors.internal()).expect("wallet");
 
     let mut changeset = wallet.take_staged().expect("initial_changeset");
     assert!(!changeset.is_empty());

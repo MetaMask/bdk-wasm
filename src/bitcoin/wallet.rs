@@ -7,8 +7,8 @@ use wasm_bindgen::{prelude::wasm_bindgen, JsError, JsValue};
 use crate::{
     result::JsResult,
     types::{
-        AddressInfo, Balance, ChangeSet, CheckPoint, DescriptorPair, FeeRate, FullScanRequest, KeychainKind, Network,
-        Psbt, Recipient, SyncRequest, Update,
+        AddressInfo, Balance, ChangeSet, CheckPoint, FeeRate, FullScanRequest, KeychainKind, Network, Psbt, Recipient,
+        SyncRequest, Update,
     },
 };
 
@@ -17,16 +17,30 @@ pub struct Wallet(BdkWallet);
 
 #[wasm_bindgen]
 impl Wallet {
-    pub fn create(network: Network, descriptors: DescriptorPair) -> JsResult<Wallet> {
-        let wallet = BdkWallet::create(descriptors.external(), descriptors.internal())
+    pub fn create(network: Network, external_descriptor: String, internal_descriptor: String) -> JsResult<Wallet> {
+        let wallet = BdkWallet::create(external_descriptor, internal_descriptor)
             .network(network.into())
             .create_wallet_no_persist()?;
 
         Ok(Wallet(wallet))
     }
 
-    pub fn load(changeset: ChangeSet) -> JsResult<Wallet> {
-        let wallet_opt = BdkWallet::load().load_wallet_no_persist(changeset.into())?;
+    pub fn load(
+        changeset: ChangeSet,
+        external_descriptor: Option<String>,
+        internal_descriptor: Option<String>,
+    ) -> JsResult<Wallet> {
+        let mut builder = BdkWallet::load();
+
+        if external_descriptor.is_some() {
+            builder = builder.descriptor(KeychainKind::External.into(), external_descriptor);
+        }
+
+        if internal_descriptor.is_some() {
+            builder = builder.descriptor(KeychainKind::Internal.into(), internal_descriptor);
+        }
+
+        let wallet_opt = builder.extract_keys().load_wallet_no_persist(changeset.into())?;
 
         let wallet = match wallet_opt {
             Some(wallet) => wallet,

@@ -4,10 +4,38 @@ use bdk_wallet::keys::ExtendedKey;
 use bitcoin::bip32::{Fingerprint, Xpriv, Xpub};
 use serde_wasm_bindgen::from_value;
 
-use crate::types::{AddressType, DescriptorPair, Network, SLIP10Node};
+use crate::types::{AddressType, Network, SLIP10Node};
 use wasm_bindgen::prelude::{wasm_bindgen, JsError, JsValue};
 
 use super::result::JsResult;
+
+/// Pair of descriptors for external and internal keychains
+#[wasm_bindgen]
+#[derive(Debug, Clone)]
+pub struct DescriptorPair {
+    /// External descriptor
+    external: String,
+    /// Internal descriptor
+    internal: String,
+}
+
+#[wasm_bindgen]
+impl DescriptorPair {
+    #[wasm_bindgen(constructor)]
+    pub fn new(external: String, internal: String) -> Self {
+        DescriptorPair { external, internal }
+    }
+
+    #[wasm_bindgen(getter)]
+    pub fn internal(&self) -> String {
+        self.internal.clone()
+    }
+
+    #[wasm_bindgen(getter)]
+    pub fn external(&self) -> String {
+        self.external.clone()
+    }
+}
 
 #[wasm_bindgen]
 pub fn seed_to_descriptor(seed: &[u8], network: Network, address_type: AddressType) -> JsResult<DescriptorPair> {
