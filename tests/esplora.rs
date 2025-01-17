@@ -67,6 +67,9 @@ async fn test_esplora_client() {
     .expect("load");
     assert_eq!(loaded_wallet.balance(), wallet.balance());
 
+    let fees = blockchain_client.get_fee_estimates().await.expect("get_fee_estimates");
+    web_sys::console::log_2(&"fees: ".into(), &fees);
+
     let recipient = Address::new(RECIPIENT_ADDRESS, NETWORK).expect("recipient_address");
     let amount = Amount::from_sat(SEND_ADMOUNT);
     let mut psbt = loaded_wallet
