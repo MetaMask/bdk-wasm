@@ -4,8 +4,7 @@ use bdk_esplora::{
     EsploraAsyncExt,
 };
 use bdk_wallet::KeychainKind;
-use serde_wasm_bindgen::to_value;
-use wasm_bindgen::{prelude::wasm_bindgen, JsValue};
+use wasm_bindgen::prelude::wasm_bindgen;
 
 use crate::{
     result::JsResult,
@@ -51,11 +50,6 @@ impl EsploraClient {
     pub async fn broadcast(&self, transaction: &Transaction) -> JsResult<()> {
         self.client.broadcast(transaction).await?;
         Ok(())
-    }
-
-    pub async fn get_fee_estimates(&self) -> JsResult<JsValue> {
-        let map = self.client.get_fee_estimates().await?;
-        Ok(to_value(&map)?)
     }
 }
 
