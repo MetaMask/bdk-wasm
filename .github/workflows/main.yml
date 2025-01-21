@@ -2,7 +2,7 @@ name: Main
 
 on:
   push:
-    branches: [main, release/v0.1.2]
+    branches: [main]
   pull_request:
 
 jobs:
@@ -49,7 +49,17 @@ jobs:
             exit 1
           fi
 
+  is-release:
+    needs: all-jobs-pass
+    if: github.event_name == 'push'
+    name: Check if release
+    uses: ./.github/workflows/check-is-release.yml
+    with:
+      base_ref: main
+
   publish-release:
+    needs: is-release
+    if: needs.is-release.outputs.IS_RELEASE == 'true'
     name: Publish release
     permissions:
       contents: write
