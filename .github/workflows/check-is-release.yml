@@ -23,13 +23,14 @@ jobs:
       - name: Compare Cargo.toml versions
         id: check-release
         run: |
-          # Extract the version from the current Cargo.toml
-          current_version=$(grep '^version' Cargo.toml | sed 's/version = "//' | sed 's/"//')
-
-          # Extract the version from the previous commit's Cargo.toml
           git fetch origin ${{ inputs.base_ref }}
-          previous_version=$(git show origin/${{ inputs.base_ref }}:Cargo.toml | grep '^version' | sed 's/version = "//' | sed 's/"//')
 
+          # Find the merge base between the current branch and the base branch
+          merge_base=$(git merge-base HEAD origin/${{ inputs.base_ref }})
+          echo "Merge base commit: $merge_base"
+
+          current_version=$(grep -E '^version\s*=' Cargo.toml | sed -E 's/version\s*=\s*"([^"]+)"/\1/')
+          previous_version=$(git show $merge_base:Cargo.toml | grep -E '^version\s*=' | sed -E 's/version\s*=\s*"([^"]+)"/\1/')
           echo "Current version: $current_version"
           echo "Previous version: $previous_version"
 
