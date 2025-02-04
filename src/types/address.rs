@@ -77,6 +77,11 @@ impl Address {
         let address = BdkAddress::from_str(address_str)?.require_network(network.into())?;
         Ok(Address(address))
     }
+
+    #[wasm_bindgen(js_name = toString)]
+    pub fn address(&self) -> String {
+        self.0.to_string()
+    }
 }
 
 impl From<BdkAddress> for Address {

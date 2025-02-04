@@ -1,11 +1,12 @@
 use std::ops::{Deref, DerefMut};
 
-use bitcoin::{Amount as BdkAmount, FeeRate as BdkFeeRate, Psbt as BdkPsbt, ScriptBuf as BdkScriptBuf};
+use bdk_wallet::psbt::PsbtUtils;
+use bitcoin::{Amount as BdkAmount, Psbt as BdkPsbt, ScriptBuf as BdkScriptBuf};
 use wasm_bindgen::prelude::wasm_bindgen;
 
 use crate::result::JsResult;
 
-use super::{Address, Amount, Transaction};
+use super::{Address, Amount, FeeRate, Transaction};
 
 /// A Partially Signed Transaction.
 #[wasm_bindgen]
@@ -31,6 +32,26 @@ impl Psbt {
     pub fn extract_tx(self) -> JsResult<Transaction> {
         let tx = self.0.extract_tx()?;
         Ok(tx.into())
+    }
+
+    pub fn extract_tx_with_fee_rate_limit(self, max_fee_rate: FeeRate) -> JsResult<Transaction> {
+        let tx = self.0.extract_tx_with_fee_rate_limit(max_fee_rate.into())?;
+        Ok(tx.into())
+    }
+
+    pub fn fee(&self) -> JsResult<Amount> {
+        let fee = self.0.fee()?;
+        Ok(fee.into())
+    }
+
+    pub fn fee_amount(&self) -> Option<Amount> {
+        let fee_amount = self.0.fee_amount();
+        fee_amount.map(Into::into)
+    }
+
+    pub fn fee_rate(&self) -> Option<FeeRate> {
+        let fee_rate = self.0.fee_rate();
+        fee_rate.map(Into::into)
     }
 }
 
@@ -75,41 +96,5 @@ impl Recipient {
 impl From<Recipient> for (BdkScriptBuf, BdkAmount) {
     fn from(r: Recipient) -> Self {
         (r.address().script_pubkey(), r.amount().into())
-    }
-}
-
-/// Represents fee rate.
-///
-/// This is an integer newtype representing fee rate in `sat/kwu`. It provides protection against mixing
-/// up the types as well as basic formatting features.
-#[wasm_bindgen]
-#[derive(Debug)]
-pub struct FeeRate(BdkFeeRate);
-
-impl Deref for FeeRate {
-    type Target = BdkFeeRate;
-
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
-}
-
-#[wasm_bindgen]
-impl FeeRate {
-    #[wasm_bindgen(constructor)]
-    pub fn new(sat_vb: u64) -> Self {
-        FeeRate(BdkFeeRate::from_sat_per_vb_unchecked(sat_vb))
-    }
-}
-
-impl From<BdkFeeRate> for FeeRate {
-    fn from(inner: BdkFeeRate) -> Self {
-        FeeRate(inner)
-    }
-}
-
-impl From<FeeRate> for BdkFeeRate {
-    fn from(fee_rate: FeeRate) -> Self {
-        fee_rate.0
     }
 }

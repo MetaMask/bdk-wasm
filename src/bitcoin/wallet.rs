@@ -6,8 +6,8 @@ use wasm_bindgen::{prelude::wasm_bindgen, JsError, JsValue};
 use crate::{
     result::JsResult,
     types::{
-        AddressInfo, Balance, ChangeSet, CheckPoint, FeeRate, FullScanRequest, KeychainKind, Network, Psbt, Recipient,
-        SyncRequest, Update,
+        Address, AddressInfo, Balance, ChangeSet, CheckPoint, FeeRate, FullScanRequest, KeychainKind, Network, Psbt,
+        Recipient, SyncRequest, Update,
     },
 };
 
@@ -128,6 +128,18 @@ impl Wallet {
 
         builder
             .set_recipients(recipients.into_iter().map(Into::into).collect())
+            .fee_rate(fee_rate.into());
+
+        let psbt = builder.finish()?;
+        Ok(psbt.into())
+    }
+
+    pub fn drain_to(&mut self, fee_rate: FeeRate, to: Address) -> JsResult<Psbt> {
+        let mut builder = self.0.build_tx();
+
+        builder
+            .drain_wallet()
+            .drain_to(to.script_pubkey())
             .fee_rate(fee_rate.into());
 
         let psbt = builder.finish()?;
