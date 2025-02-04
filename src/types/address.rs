@@ -77,6 +77,12 @@ impl Address {
         let address = BdkAddress::from_str(address_str)?.require_network(network.into())?;
         Ok(Address(address))
     }
+
+    /// String representation
+    #[wasm_bindgen(getter)]
+    pub fn to_string(&self) -> String {
+        self.0.to_string()
+    }
 }
 
 impl From<BdkAddress> for Address {

@@ -32,6 +32,12 @@ impl Psbt {
         let tx = self.0.extract_tx()?;
         Ok(tx.into())
     }
+
+    #[wasm_bindgen(getter)]
+    pub fn fee(&self) -> JsResult<Amount> {
+        let fee = self.0.fee()?;
+        Ok(fee.into())
+    }
 }
 
 impl From<BdkPsbt> for Psbt {
