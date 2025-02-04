@@ -20,6 +20,7 @@ const NETWORK: Network = Network::Signet;
 const SEND_ADMOUNT: u64 = 1000;
 const FEE_RATE: u64 = 2;
 const RECIPIENT_ADDRESS: &str = "tb1qd28npep0s8frcm3y7dxqajkcy2m40eysplyr9v";
+const CONFIRMATION_TARGET: u16 = 2;
 
 #[wasm_bindgen_test]
 async fn test_esplora_client() {
@@ -66,14 +67,16 @@ async fn test_esplora_client() {
     .expect("load");
     assert_eq!(loaded_wallet.balance(), wallet.balance());
 
+    let fees = blockchain_client.get_fee_estimates().await.expect("get_fee_estimates");
     let recipient = Address::new(RECIPIENT_ADDRESS, NETWORK).expect("recipient_address");
     let amount = Amount::from_sat(SEND_ADMOUNT);
+    let fee_rate = fees.get(CONFIRMATION_TARGET).expect("fee_estimation");
     let mut psbt = loaded_wallet
-        .build_tx(FeeRate::new(FEE_RATE), vec![Recipient::new(recipient, amount)])
+        .build_tx(FeeRate::new(fee_rate as u64), vec![Recipient::new(recipient, amount)])
         .expect("build_tx");
 
     let fee = psbt.fee().expect("psbt_fee");
-    assert_eq!(fee.to_sat(), FEE_RATE);
+    assert!(fee.to_sat() > 200); // We cannot know the exact fees
 
     let finalized = loaded_wallet.sign(&mut psbt).expect("sign");
     assert!(finalized);
@@ -105,13 +108,5 @@ async fn test_drain() {
     let recipient = Address::new(RECIPIENT_ADDRESS, NETWORK).expect("recipient_address");
     let psbt = wallet.drain_to(FeeRate::new(FEE_RATE), recipient).expect("drain_to");
     assert!(psbt.fee_amount().is_some());
-}
-
-#[wasm_bindgen_test]
-async fn test_fee_estimates() {
-    set_panic_hook();
-
-    let blockchain_client = EsploraClient::new(ESPLORA_URL).expect("esplora_client");
-    let fees = blockchain_client.get_fee_estimates().await.expect("get_fee_estimates");
-    assert!(fees.get(2).is_some());
+    assert!(psbt.fee_rate().is_some());
 }
