@@ -20,7 +20,6 @@ impl Deref for FeeEstimates {
 impl FeeEstimates {
     /// Returns the feerate (in sat/vB) or undefined.
     /// Available confirmation targets are 1-25, 144, 504 and 1008 blocks.
-    #[wasm_bindgen]
     pub fn get(&self, k: u16) -> Option<f64> {
         self.0.get(&k).copied()
     }

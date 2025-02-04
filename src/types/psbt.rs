@@ -34,19 +34,21 @@ impl Psbt {
         Ok(tx.into())
     }
 
-    #[wasm_bindgen]
+    pub fn extract_tx_with_fee_rate_limit(self, max_fee_rate: FeeRate) -> JsResult<Transaction> {
+        let tx = self.0.extract_tx_with_fee_rate_limit(max_fee_rate.into())?;
+        Ok(tx.into())
+    }
+
     pub fn fee(&self) -> JsResult<Amount> {
         let fee = self.0.fee()?;
         Ok(fee.into())
     }
 
-    #[wasm_bindgen]
     pub fn fee_amount(&self) -> Option<Amount> {
         let fee_amount = self.0.fee_amount();
         fee_amount.map(Into::into)
     }
 
-    #[wasm_bindgen]
     pub fn fee_rate(&self) -> Option<FeeRate> {
         let fee_rate = self.0.fee_rate();
         fee_rate.map(Into::into)
