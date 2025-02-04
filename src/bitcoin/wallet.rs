@@ -134,10 +134,13 @@ impl Wallet {
         Ok(psbt.into())
     }
 
-    pub fn drain_to(&mut self, to: Address) -> JsResult<Psbt> {
+    pub fn drain_to(&mut self, fee_rate: FeeRate, to: Address) -> JsResult<Psbt> {
         let mut builder = self.0.build_tx();
 
-        builder.drain_wallet().drain_to(to.script_pubkey());
+        builder
+            .drain_wallet()
+            .drain_to(to.script_pubkey())
+            .fee_rate(fee_rate.into());
 
         let psbt = builder.finish()?;
         Ok(psbt.into())

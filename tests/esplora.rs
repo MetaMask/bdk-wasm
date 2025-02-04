@@ -54,7 +54,6 @@ async fn test_esplora_client() {
     wallet.apply_update(update).expect("full_scan apply_update");
 
     let balance = wallet.balance();
-    web_sys::console::log_2(&"balance: ".into(), &balance.total().to_sat().into());
     assert!(balance.trusted_spendable().to_sat() > SEND_ADMOUNT);
 
     // Important to test that we can load the wallet from a changeset with the signing descriptors and be able to sign a transaction
@@ -73,6 +72,9 @@ async fn test_esplora_client() {
         .build_tx(FeeRate::new(FEE_RATE), vec![Recipient::new(recipient, amount)])
         .expect("build_tx");
 
+    let fee = psbt.fee().expect("psbt_fee");
+    assert_eq!(fee.to_sat(), FEE_RATE);
+
     let finalized = loaded_wallet.sign(&mut psbt).expect("sign");
     assert!(finalized);
 
@@ -80,4 +82,36 @@ async fn test_esplora_client() {
     blockchain_client.broadcast(&tx).await.expect("broadcast");
 
     web_sys::console::log_1(&tx.compute_txid().into());
+}
+
+#[wasm_bindgen_test]
+async fn test_drain() {
+    set_panic_hook();
+
+    let external_desc = "wpkh(tprv8ZgxMBicQKsPf6vydw7ixvsLKY79hmeXujBkGCNCApyft92yVYng2y28JpFZcneBYTTHycWSRpokhHE25GfHPBxnW5GpSm2dMWzEi9xxEyU/84'/1'/0'/0/*)#uel0vg9p";
+    let internal_desc = "wpkh(tprv8ZgxMBicQKsPf6vydw7ixvsLKY79hmeXujBkGCNCApyft92yVYng2y28JpFZcneBYTTHycWSRpokhHE25GfHPBxnW5GpSm2dMWzEi9xxEyU/84'/1'/0'/1/*)#dd6w3a4e";
+
+    let mut wallet = Wallet::create(NETWORK, external_desc.into(), internal_desc.into()).expect("wallet");
+    let mut blockchain_client = EsploraClient::new(ESPLORA_URL).expect("esplora_client");
+
+    let full_scan_request = wallet.start_full_scan();
+    let update = blockchain_client
+        .full_scan(full_scan_request, STOP_GAP, PARALLEL_REQUESTS)
+        .await
+        .expect("full_scan");
+    wallet.apply_update(update).expect("full_scan apply_update");
+
+    // No need to test actual values as we are just wrapping BDK and assume the underlying package is computing fees properly
+    let recipient = Address::new(RECIPIENT_ADDRESS, NETWORK).expect("recipient_address");
+    let psbt = wallet.drain_to(FeeRate::new(FEE_RATE), recipient).expect("drain_to");
+    assert!(psbt.fee_amount().is_some());
+}
+
+#[wasm_bindgen_test]
+async fn test_fee_estimates() {
+    set_panic_hook();
+
+    let blockchain_client = EsploraClient::new(ESPLORA_URL).expect("esplora_client");
+    let fees = blockchain_client.get_fee_estimates().await.expect("get_fee_estimates");
+    assert!(fees.get(2).is_some());
 }
