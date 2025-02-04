@@ -78,9 +78,8 @@ impl Address {
         Ok(Address(address))
     }
 
-    /// String representation
-    #[wasm_bindgen(getter)]
-    pub fn to_string(&self) -> String {
+    #[wasm_bindgen(js_name = toString)]
+    pub fn address(&self) -> String {
         self.0.to_string()
     }
 }

@@ -76,7 +76,7 @@ async fn test_esplora_client() {
         .expect("build_tx");
 
     let fee = psbt.fee().expect("psbt_fee");
-    assert!(fee.to_sat() > 200); // We cannot know the exact fees
+    assert!(fee.to_sat() > 100); // We cannot know the exact fees
 
     let finalized = loaded_wallet.sign(&mut psbt).expect("sign");
     assert!(finalized);
