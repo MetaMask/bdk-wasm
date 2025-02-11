@@ -29,8 +29,10 @@ jobs:
           merge_base=$(git merge-base HEAD "origin/${{ inputs.base_ref }}")
           echo "Merge base commit: $merge_base"
 
-          current_version=$(grep -E '^version\s*=' Cargo.toml | sed -E 's/version\s*=\s*"([^"]+)"/\1/')
-          previous_version=$(git show "$merge_base:Cargo.toml" | grep -E '^version\s*=' | sed -E 's/version\s*=\s*"([^"]+)"/\1/')
+          # Extract versions
+          get_version() { grep -E '^version\s*=' | sed -E 's/version\s*=\s*"([^"]+)"/\1/' }
+          current_version=$(cat Cargo.toml | get_version)
+          previous_version=$(git show "$merge_base:Cargo.toml" | get_version)
           echo "Current version: $current_version"
           echo "Previous version: $previous_version"
 
