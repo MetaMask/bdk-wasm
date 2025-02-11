@@ -49,17 +49,7 @@ jobs:
             exit 1
           fi
 
-  is-release:
-    needs: all-jobs-pass
-    if: github.event_name == 'push'
-    name: Check if release
-    uses: ./.github/workflows/check-is-release.yml
-    with:
-      base_ref: main
-
   publish-release:
-    needs: is-release
-    if: needs.is-release.outputs.IS_RELEASE == 'true'
     name: Publish release
     permissions:
       contents: write
