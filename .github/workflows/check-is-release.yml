@@ -31,7 +31,7 @@ jobs:
 
           # Extract versions
           get_version() { grep -E '^version\s*=' | sed -E 's/version\s*=\s*"([^"]+)"/\1/'; }
-          current_version=$(cat Cargo.toml | get_version)
+          current_version=$(get_version < Cargo.toml)
           previous_version=$(git show "$merge_base:Cargo.toml" | get_version)
           echo "Current version: $current_version"
           echo "Previous version: $previous_version"
