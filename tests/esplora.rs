@@ -5,7 +5,7 @@
 extern crate wasm_bindgen_test;
 
 use bitcoindevkit::{
-    bitcoin::{EsploraClient, TxBuilder, Wallet},
+    bitcoin::{EsploraClient, Wallet},
     set_panic_hook,
     types::{Address, Amount, FeeRate, KeychainKind, Network, Recipient},
 };
@@ -29,7 +29,7 @@ async fn test_esplora_client() {
     let external_desc = "wpkh(tprv8ZgxMBicQKsPf6vydw7ixvsLKY79hmeXujBkGCNCApyft92yVYng2y28JpFZcneBYTTHycWSRpokhHE25GfHPBxnW5GpSm2dMWzEi9xxEyU/84'/1'/0'/0/*)#uel0vg9p";
     let internal_desc = "wpkh(tprv8ZgxMBicQKsPf6vydw7ixvsLKY79hmeXujBkGCNCApyft92yVYng2y28JpFZcneBYTTHycWSRpokhHE25GfHPBxnW5GpSm2dMWzEi9xxEyU/84'/1'/0'/1/*)#dd6w3a4e";
 
-    let mut wallet = Wallet::create(NETWORK, external_desc.into(), internal_desc.into()).expect("wallet");
+    let wallet = Wallet::create(NETWORK, external_desc.into(), internal_desc.into()).expect("wallet");
     let mut blockchain_client = EsploraClient::new(ESPLORA_URL).expect("esplora_client");
 
     let block_height = wallet.latest_checkpoint().height();
@@ -67,11 +67,14 @@ async fn test_esplora_client() {
     .expect("load");
     assert_eq!(loaded_wallet.balance(), wallet.balance());
 
+    let initial_derivation_index = wallet.derivation_index(KeychainKind::Internal).unwrap();
+
     let fees = blockchain_client.get_fee_estimates().await.expect("get_fee_estimates");
     let recipient = Address::new(RECIPIENT_ADDRESS, NETWORK).expect("recipient_address");
     let amount = Amount::from_sat(SEND_ADMOUNT);
     let fee_rate = fees.get(CONFIRMATION_TARGET).expect("fee_estimation");
-    let mut psbt = TxBuilder::new(wallet)
+    let mut psbt = loaded_wallet
+        .build_tx()
         .fee_rate(FeeRate::new(fee_rate as u64))
         .add_recipient(Recipient::new(recipient, amount))
         .finish()
@@ -86,7 +89,12 @@ async fn test_esplora_client() {
     let tx = psbt.extract_tx().expect("extract_tx");
     blockchain_client.broadcast(&tx).await.expect("broadcast");
 
-    web_sys::console::log_1(&tx.compute_txid().to_string().into());
+    // Assert that we are aware of newly created addresses that were revealed during PSBT creation
+    let current_derivation_index = loaded_wallet.derivation_index(KeychainKind::Internal).unwrap();
+    assert!(initial_derivation_index < current_derivation_index);
+
+    let fetched_tx = blockchain_client.get_tx(tx.compute_txid()).await.expect("get_tx");
+    assert!(fetched_tx.is_some())
 }
 
 #[wasm_bindgen_test]
@@ -96,7 +104,7 @@ async fn test_drain() {
     let external_desc = "wpkh(tprv8ZgxMBicQKsPf6vydw7ixvsLKY79hmeXujBkGCNCApyft92yVYng2y28JpFZcneBYTTHycWSRpokhHE25GfHPBxnW5GpSm2dMWzEi9xxEyU/84'/1'/0'/0/*)#uel0vg9p";
     let internal_desc = "wpkh(tprv8ZgxMBicQKsPf6vydw7ixvsLKY79hmeXujBkGCNCApyft92yVYng2y28JpFZcneBYTTHycWSRpokhHE25GfHPBxnW5GpSm2dMWzEi9xxEyU/84'/1'/0'/1/*)#dd6w3a4e";
 
-    let mut wallet = Wallet::create(NETWORK, external_desc.into(), internal_desc.into()).expect("wallet");
+    let wallet = Wallet::create(NETWORK, external_desc.into(), internal_desc.into()).expect("wallet");
     let mut blockchain_client = EsploraClient::new(ESPLORA_URL).expect("esplora_client");
 
     let full_scan_request = wallet.start_full_scan();
@@ -108,7 +116,8 @@ async fn test_drain() {
 
     // No need to test actual values as we are just wrapping BDK and assume the underlying package is computing fees properly
     let recipient = Address::new(RECIPIENT_ADDRESS, NETWORK).expect("recipient_address");
-    let psbt = TxBuilder::new(wallet)
+    let psbt = wallet
+        .build_tx()
         .drain_wallet()
         .fee_rate(FeeRate::new(FEE_RATE))
         .drain_to(recipient)

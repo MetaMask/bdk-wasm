@@ -1,3 +1,5 @@
+use std::{cell::RefCell, rc::Rc};
+
 use bdk_wallet::{SignOptions, Wallet as BdkWallet};
 use js_sys::Date;
 use wasm_bindgen::{prelude::wasm_bindgen, JsError};
@@ -9,8 +11,10 @@ use crate::{
     },
 };
 
+use super::TxBuilder;
+
 #[wasm_bindgen]
-pub struct Wallet(BdkWallet);
+pub struct Wallet(Rc<RefCell<BdkWallet>>);
 
 #[wasm_bindgen]
 impl Wallet {
@@ -19,7 +23,7 @@ impl Wallet {
             .network(network.into())
             .create_wallet_no_persist()?;
 
-        Ok(Wallet(wallet))
+        Ok(Wallet(Rc::new(RefCell::new(wallet))))
     }
 
     pub fn load(
@@ -44,87 +48,84 @@ impl Wallet {
             None => return Err(JsError::new("Failed to load wallet, check the changeset")),
         };
 
-        Ok(Wallet(wallet))
+        Ok(Wallet(Rc::new(RefCell::new(wallet))))
     }
 
     pub fn start_full_scan(&self) -> FullScanRequest {
-        self.0.start_full_scan().build().into()
+        self.0.borrow().start_full_scan().build().into()
     }
 
     pub fn start_sync_with_revealed_spks(&self) -> SyncRequest {
-        self.0.start_sync_with_revealed_spks().build().into()
+        self.0.borrow().start_sync_with_revealed_spks().build().into()
     }
 
-    pub fn apply_update(&mut self, update: Update) -> JsResult<()> {
+    pub fn apply_update(&self, update: Update) -> JsResult<()> {
         self.apply_update_at(update, (Date::now() / 1000.0) as u64)
     }
 
-    pub fn apply_update_at(&mut self, update: Update, seen_at: u64) -> JsResult<()> {
-        self.0.apply_update_at(update, seen_at)?;
+    pub fn apply_update_at(&self, update: Update, seen_at: u64) -> JsResult<()> {
+        self.0.borrow_mut().apply_update_at(update, seen_at)?;
         Ok(())
     }
 
     pub fn network(&self) -> Network {
-        self.0.network().into()
+        self.0.borrow().network().into()
     }
 
     pub fn balance(&self) -> Balance {
-        self.0.balance().into()
+        self.0.borrow().balance().into()
     }
 
-    pub fn next_unused_address(&mut self, keychain: KeychainKind) -> AddressInfo {
-        self.0.next_unused_address(keychain.into()).into()
+    pub fn next_unused_address(&self, keychain: KeychainKind) -> AddressInfo {
+        self.0.borrow_mut().next_unused_address(keychain.into()).into()
     }
 
     pub fn peek_address(&self, keychain: KeychainKind, index: u32) -> AddressInfo {
-        self.0.peek_address(keychain.into(), index).into()
+        self.0.borrow().peek_address(keychain.into(), index).into()
     }
 
-    pub fn reveal_next_address(&mut self, keychain: KeychainKind) -> AddressInfo {
-        self.0.reveal_next_address(keychain.into()).into()
+    pub fn reveal_next_address(&self, keychain: KeychainKind) -> AddressInfo {
+        self.0.borrow_mut().reveal_next_address(keychain.into()).into()
     }
 
-    pub fn reveal_addresses_to(&mut self, keychain: KeychainKind, index: u32) -> Vec<AddressInfo> {
+    pub fn reveal_addresses_to(&self, keychain: KeychainKind, index: u32) -> Vec<AddressInfo> {
         self.0
+            .borrow_mut()
             .reveal_addresses_to(keychain.into(), index)
             .map(Into::into)
             .collect()
     }
 
     pub fn list_unused_addresses(&self, keychain: KeychainKind) -> Vec<AddressInfo> {
-        self.0.list_unused_addresses(keychain.into()).map(Into::into).collect()
+        self.0
+            .borrow()
+            .list_unused_addresses(keychain.into())
+            .map(Into::into)
+            .collect()
     }
 
     pub fn latest_checkpoint(&self) -> CheckPoint {
-        self.0.latest_checkpoint().into()
+        self.0.borrow().latest_checkpoint().into()
     }
 
-    pub fn take_staged(&mut self) -> Option<ChangeSet> {
-        self.0.take_staged().map(Into::into)
+    pub fn take_staged(&self) -> Option<ChangeSet> {
+        self.0.borrow_mut().take_staged().map(Into::into)
     }
 
     pub fn public_descriptor(&self, keychain: KeychainKind) -> String {
-        self.0.public_descriptor(keychain.into()).to_string()
+        self.0.borrow().public_descriptor(keychain.into()).to_string()
     }
 
     pub fn sign(&self, psbt: &mut Psbt) -> JsResult<bool> {
-        let result = self.0.sign(psbt, SignOptions::default())?;
+        let result = self.0.borrow().sign(psbt, SignOptions::default())?;
         Ok(result)
     }
 
     pub fn derivation_index(&self, keychain: KeychainKind) -> Option<u32> {
-        self.0.derivation_index(keychain.into())
+        self.0.borrow().derivation_index(keychain.into())
     }
-}
 
-impl From<BdkWallet> for Wallet {
-    fn from(inner: BdkWallet) -> Self {
-        Wallet(inner)
-    }
-}
-
-impl From<Wallet> for BdkWallet {
-    fn from(wallet: Wallet) -> Self {
-        wallet.0
+    pub fn build_tx(&self) -> TxBuilder {
+        TxBuilder::new(self.0.clone())
     }
 }

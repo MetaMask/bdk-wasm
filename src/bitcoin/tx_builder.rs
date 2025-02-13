@@ -1,17 +1,24 @@
+use std::{cell::RefCell, rc::Rc};
+
 use bdk_wallet::Wallet as BdkWallet;
 use bitcoin::ScriptBuf;
 use wasm_bindgen::prelude::wasm_bindgen;
 
 use crate::{
-    bitcoin::Wallet,
     result::JsResult,
     types::{Address, FeeRate, Outpoint, Psbt, Recipient},
 };
 
-/// A transaction builder
+/// A transaction builder.
+///
+/// A `TxBuilder` is created by calling [`build_tx`] or [`build_fee_bump`] on a wallet. After
+/// assigning it, you set options on it until finally calling [`finish`] to consume the builder and
+/// generate the transaction.
+///
+/// Each option setting method on `TxBuilder` takes and returns a new builder so you can chain calls
 #[wasm_bindgen]
 pub struct TxBuilder {
-    wallet: Wallet,
+    wallet: Rc<RefCell<BdkWallet>>,
     recipients: Vec<Recipient>,
     unspendable: Vec<Outpoint>,
     fee_rate: FeeRate,
@@ -22,8 +29,7 @@ pub struct TxBuilder {
 
 #[wasm_bindgen]
 impl TxBuilder {
-    #[wasm_bindgen(constructor)]
-    pub fn new(wallet: Wallet) -> TxBuilder {
+    pub(crate) fn new(wallet: Rc<RefCell<BdkWallet>>) -> TxBuilder {
         TxBuilder {
             wallet,
             recipients: vec![],
@@ -108,8 +114,8 @@ impl TxBuilder {
     ///
     /// Returns a new [`Psbt`] per [`BIP174`].
     pub fn finish(self) -> JsResult<Psbt> {
-        let mut bdk_wallet: BdkWallet = self.wallet.into();
-        let mut builder = bdk_wallet.build_tx();
+        let mut wallet = self.wallet.borrow_mut();
+        let mut builder = wallet.build_tx();
 
         builder
             .set_recipients(self.recipients.into_iter().map(Into::into).collect())

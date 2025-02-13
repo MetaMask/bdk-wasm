@@ -8,7 +8,7 @@ use wasm_bindgen::prelude::wasm_bindgen;
 
 use crate::{
     result::JsResult,
-    types::{FeeEstimates, FullScanRequest, SyncRequest, Transaction, Update},
+    types::{FeeEstimates, FullScanRequest, SyncRequest, Transaction, Txid, Update},
 };
 use std::time::Duration;
 
@@ -55,6 +55,11 @@ impl EsploraClient {
     pub async fn get_fee_estimates(&self) -> JsResult<FeeEstimates> {
         let fee_estimates = self.client.get_fee_estimates().await?;
         Ok(fee_estimates.into())
+    }
+
+    pub async fn get_tx(&self, txid: Txid) -> JsResult<Option<Transaction>> {
+        let tx = self.client.get_tx(&txid.into()).await?;
+        Ok(tx.map(Into::into))
     }
 }
 
