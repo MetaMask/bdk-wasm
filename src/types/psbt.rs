@@ -69,7 +69,7 @@ impl From<Psbt> for BdkPsbt {
 
 /// A Transaction recipient
 #[wasm_bindgen]
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Recipient {
     address: Address,
     amount: Amount,

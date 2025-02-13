@@ -1,13 +1,11 @@
 use bdk_wallet::{SignOptions, Wallet as BdkWallet};
 use js_sys::Date;
-use serde_wasm_bindgen::to_value;
-use wasm_bindgen::{prelude::wasm_bindgen, JsError, JsValue};
+use wasm_bindgen::{prelude::wasm_bindgen, JsError};
 
 use crate::{
     result::JsResult,
     types::{
-        Address, AddressInfo, Balance, ChangeSet, CheckPoint, FeeRate, FullScanRequest, KeychainKind, Network, Psbt,
-        Recipient, SyncRequest, Update,
+        AddressInfo, Balance, ChangeSet, CheckPoint, FullScanRequest, KeychainKind, Network, Psbt, SyncRequest, Update,
     },
 };
 
@@ -97,20 +95,6 @@ impl Wallet {
         self.0.list_unused_addresses(keychain.into()).map(Into::into).collect()
     }
 
-    pub fn list_unspent(&self) -> JsResult<Vec<JsValue>> {
-        self.0
-            .list_unspent()
-            .map(|output| to_value(&output).map_err(Into::into))
-            .collect()
-    }
-
-    pub fn transactions(&self) -> JsResult<Vec<JsValue>> {
-        self.0
-            .transactions()
-            .map(|tx| to_value(&tx.tx_node.tx).map_err(Into::into))
-            .collect()
-    }
-
     pub fn latest_checkpoint(&self) -> CheckPoint {
         self.0.latest_checkpoint().into()
     }
@@ -123,31 +107,24 @@ impl Wallet {
         self.0.public_descriptor(keychain.into()).to_string()
     }
 
-    pub fn build_tx(&mut self, fee_rate: FeeRate, recipients: Vec<Recipient>) -> JsResult<Psbt> {
-        let mut builder = self.0.build_tx();
-
-        builder
-            .set_recipients(recipients.into_iter().map(Into::into).collect())
-            .fee_rate(fee_rate.into());
-
-        let psbt = builder.finish()?;
-        Ok(psbt.into())
-    }
-
-    pub fn drain_to(&mut self, fee_rate: FeeRate, to: Address) -> JsResult<Psbt> {
-        let mut builder = self.0.build_tx();
-
-        builder
-            .drain_wallet()
-            .drain_to(to.script_pubkey())
-            .fee_rate(fee_rate.into());
-
-        let psbt = builder.finish()?;
-        Ok(psbt.into())
-    }
-
     pub fn sign(&self, psbt: &mut Psbt) -> JsResult<bool> {
         let result = self.0.sign(psbt, SignOptions::default())?;
         Ok(result)
+    }
+
+    pub fn derivation_index(&self, keychain: KeychainKind) -> Option<u32> {
+        self.0.derivation_index(keychain.into())
+    }
+}
+
+impl From<BdkWallet> for Wallet {
+    fn from(inner: BdkWallet) -> Self {
+        Wallet(inner)
+    }
+}
+
+impl From<Wallet> for BdkWallet {
+    fn from(wallet: Wallet) -> Self {
+        wallet.0
     }
 }

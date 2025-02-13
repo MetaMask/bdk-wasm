@@ -5,7 +5,7 @@
 extern crate wasm_bindgen_test;
 
 use bitcoindevkit::{
-    bitcoin::{EsploraClient, Wallet},
+    bitcoin::{EsploraClient, TxBuilder, Wallet},
     set_panic_hook,
     types::{Address, Amount, FeeRate, KeychainKind, Network, Recipient},
 };
@@ -59,7 +59,7 @@ async fn test_esplora_client() {
 
     // Important to test that we can load the wallet from a changeset with the signing descriptors and be able to sign a transaction
     // as the changeset does not contain the private signing information.
-    let mut loaded_wallet = Wallet::load(
+    let loaded_wallet = Wallet::load(
         wallet.take_staged().unwrap(),
         Some(external_desc.into()),
         Some(internal_desc.into()),
@@ -71,8 +71,10 @@ async fn test_esplora_client() {
     let recipient = Address::new(RECIPIENT_ADDRESS, NETWORK).expect("recipient_address");
     let amount = Amount::from_sat(SEND_ADMOUNT);
     let fee_rate = fees.get(CONFIRMATION_TARGET).expect("fee_estimation");
-    let mut psbt = loaded_wallet
-        .build_tx(FeeRate::new(fee_rate as u64), vec![Recipient::new(recipient, amount)])
+    let mut psbt = TxBuilder::new(wallet)
+        .fee_rate(FeeRate::new(fee_rate as u64))
+        .add_recipient(Recipient::new(recipient, amount))
+        .finish()
         .expect("build_tx");
 
     let fee = psbt.fee().expect("psbt_fee");
@@ -84,7 +86,7 @@ async fn test_esplora_client() {
     let tx = psbt.extract_tx().expect("extract_tx");
     blockchain_client.broadcast(&tx).await.expect("broadcast");
 
-    web_sys::console::log_1(&tx.compute_txid().into());
+    web_sys::console::log_1(&tx.compute_txid().to_string().into());
 }
 
 #[wasm_bindgen_test]
@@ -106,7 +108,12 @@ async fn test_drain() {
 
     // No need to test actual values as we are just wrapping BDK and assume the underlying package is computing fees properly
     let recipient = Address::new(RECIPIENT_ADDRESS, NETWORK).expect("recipient_address");
-    let psbt = wallet.drain_to(FeeRate::new(FEE_RATE), recipient).expect("drain_to");
+    let psbt = TxBuilder::new(wallet)
+        .drain_wallet()
+        .fee_rate(FeeRate::new(FEE_RATE))
+        .drain_to(recipient)
+        .finish()
+        .expect("drain_to");
     assert!(psbt.fee_amount().is_some());
     assert!(psbt.fee_rate().is_some());
 }
