@@ -91,7 +91,7 @@ impl Txid {
     }
 
     #[wasm_bindgen(js_name = toString)]
-    pub fn to_string(&self) -> String {
+    pub fn display(&self) -> String {
         self.0.to_string()
     }
 }
