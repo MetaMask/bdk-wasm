@@ -58,7 +58,7 @@ impl From<BdkAddressInfo> for AddressInfo {
     }
 }
 
-/// An owned, growable script.
+/// A Bitcoin address.
 #[wasm_bindgen]
 #[derive(Debug, Clone)]
 pub struct Address(BdkAddress);
@@ -73,13 +73,13 @@ impl Deref for Address {
 
 #[wasm_bindgen]
 impl Address {
-    pub fn new(address_str: &str, network: Network) -> JsResult<Self> {
+    pub fn from_str(address_str: &str, network: Network) -> JsResult<Self> {
         let address = BdkAddress::from_str(address_str)?.require_network(network.into())?;
         Ok(Address(address))
     }
 
     #[wasm_bindgen(js_name = toString)]
-    pub fn address(&self) -> String {
+    pub fn display(&self) -> String {
         self.0.to_string()
     }
 }

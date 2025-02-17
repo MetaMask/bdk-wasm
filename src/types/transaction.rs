@@ -1,7 +1,7 @@
 use std::{ops::Deref, str::FromStr};
 use wasm_bindgen::prelude::wasm_bindgen;
 
-use bitcoin::{OutPoint as BdkOutpoint, Transaction as BdkTransaction, Txid as BdkTxid};
+use bitcoin::{Transaction as BdkTransaction, Txid as BdkTxid};
 
 use crate::result::JsResult;
 
@@ -9,7 +9,6 @@ use crate::result::JsResult;
 ///
 /// An authenticated movement of coins.
 #[wasm_bindgen]
-#[derive(Debug)]
 pub struct Transaction(BdkTransaction);
 
 impl Deref for Transaction {
@@ -39,41 +38,8 @@ impl From<Transaction> for BdkTransaction {
     }
 }
 
-/// A reference to a transaction output.
-#[wasm_bindgen]
-pub struct Outpoint(BdkOutpoint);
-
-impl Deref for Outpoint {
-    type Target = BdkOutpoint;
-
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
-}
-
-#[wasm_bindgen]
-impl Outpoint {
-    #[wasm_bindgen(constructor)]
-    pub fn new(txid: Txid, vout: u32) -> Self {
-        BdkOutpoint::new(txid.into(), vout).into()
-    }
-}
-
-impl From<BdkOutpoint> for Outpoint {
-    fn from(inner: BdkOutpoint) -> Self {
-        Outpoint(inner)
-    }
-}
-
-impl From<Outpoint> for BdkOutpoint {
-    fn from(outpoint: Outpoint) -> Self {
-        outpoint.0
-    }
-}
-
 /// A bitcoin transaction hash/transaction ID.
 #[wasm_bindgen]
-#[derive(Debug)]
 pub struct Txid(BdkTxid);
 
 impl Deref for Txid {

@@ -70,7 +70,7 @@ async fn test_esplora_client() {
     let initial_derivation_index = wallet.derivation_index(KeychainKind::Internal).unwrap();
 
     let fees = blockchain_client.get_fee_estimates().await.expect("get_fee_estimates");
-    let recipient = Address::new(RECIPIENT_ADDRESS, NETWORK).expect("recipient_address");
+    let recipient = Address::from_str(RECIPIENT_ADDRESS, NETWORK).expect("recipient_address");
     let amount = Amount::from_sat(SEND_ADMOUNT);
     let fee_rate = fees.get(CONFIRMATION_TARGET).expect("fee_estimation");
     let mut psbt = loaded_wallet
@@ -115,7 +115,7 @@ async fn test_drain() {
     wallet.apply_update(update).expect("full_scan apply_update");
 
     // No need to test actual values as we are just wrapping BDK and assume the underlying package is computing fees properly
-    let recipient = Address::new(RECIPIENT_ADDRESS, NETWORK).expect("recipient_address");
+    let recipient = Address::from_str(RECIPIENT_ADDRESS, NETWORK).expect("recipient_address");
     let psbt = wallet
         .build_tx()
         .drain_wallet()

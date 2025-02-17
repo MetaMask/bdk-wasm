@@ -63,6 +63,12 @@ impl From<BdkChangeSet> for ChangeSet {
     }
 }
 
+impl From<&BdkChangeSet> for ChangeSet {
+    fn from(inner: &BdkChangeSet) -> Self {
+        ChangeSet(inner.clone())
+    }
+}
+
 impl From<ChangeSet> for BdkChangeSet {
     fn from(changeset: ChangeSet) -> Self {
         changeset.0
