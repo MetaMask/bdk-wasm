@@ -126,3 +126,31 @@ async fn test_drain() {
     assert!(psbt.fee_amount().is_some());
     assert!(psbt.fee_rate().is_some());
 }
+
+#[wasm_bindgen_test]
+async fn test_unspendable() {
+    set_panic_hook();
+
+    let external_desc = "wpkh(tprv8ZgxMBicQKsPf6vydw7ixvsLKY79hmeXujBkGCNCApyft92yVYng2y28JpFZcneBYTTHycWSRpokhHE25GfHPBxnW5GpSm2dMWzEi9xxEyU/84'/1'/0'/0/*)#uel0vg9p";
+    let internal_desc = "wpkh(tprv8ZgxMBicQKsPf6vydw7ixvsLKY79hmeXujBkGCNCApyft92yVYng2y28JpFZcneBYTTHycWSRpokhHE25GfHPBxnW5GpSm2dMWzEi9xxEyU/84'/1'/0'/1/*)#dd6w3a4e";
+
+    let wallet = Wallet::create(NETWORK, external_desc.into(), internal_desc.into()).expect("wallet");
+    let mut blockchain_client = EsploraClient::new(ESPLORA_URL).expect("esplora_client");
+
+    let full_scan_request = wallet.start_full_scan();
+    let update = blockchain_client
+        .full_scan(full_scan_request, STOP_GAP, PARALLEL_REQUESTS)
+        .await
+        .expect("full_scan");
+    wallet.apply_update(update).expect("full_scan apply_update");
+
+    let utxos = wallet.list_unspent();
+    assert_eq!(utxos.len(), 1, "should have only 1 UTXO");
+
+    let result = wallet
+        .build_tx()
+        .drain_wallet()
+        .unspendable(vec![utxos[0].outpoint()])
+        .finish();
+    assert!(result.is_err());
+}

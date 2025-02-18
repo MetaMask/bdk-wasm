@@ -13,7 +13,7 @@ use super::Txid;
 
 /// A reference to a transaction output.
 #[wasm_bindgen]
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Outpoint(BdkOutpoint);
 
 impl Deref for Outpoint {
