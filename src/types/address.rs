@@ -73,7 +73,7 @@ impl Deref for Address {
 
 #[wasm_bindgen]
 impl Address {
-    pub fn from_str(address_str: &str, network: Network) -> JsResult<Self> {
+    pub fn from_string(address_str: &str, network: Network) -> JsResult<Self> {
         let address = BdkAddress::from_str(address_str)?.require_network(network.into())?;
         Ok(Address(address))
     }

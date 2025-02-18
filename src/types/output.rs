@@ -31,8 +31,8 @@ impl Outpoint {
         BdkOutpoint::new(txid.into(), vout).into()
     }
 
-    pub fn from_str(outpoint_str: String) -> JsResult<Self> {
-        let outpoint = BdkOutpoint::from_str(&outpoint_str)?;
+    pub fn from_string(outpoint_str: &str) -> JsResult<Self> {
+        let outpoint = BdkOutpoint::from_str(outpoint_str)?;
         Ok(outpoint.into())
     }
 
