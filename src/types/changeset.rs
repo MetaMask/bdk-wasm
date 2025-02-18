@@ -37,13 +37,11 @@ impl ChangeSet {
     }
 
     /// Create a new `ChangeSet` from a JSON string.
-    #[wasm_bindgen]
     pub fn from_json(val: &str) -> JsResult<ChangeSet> {
         Ok(ChangeSet(from_str(val)?))
     }
 
     /// Create a new `ChangeSet` from a JS object.
-    #[wasm_bindgen]
     pub fn from_js(js_value: JsValue) -> JsResult<ChangeSet> {
         Ok(ChangeSet(from_value(js_value)?))
     }
@@ -60,12 +58,6 @@ impl Deref for ChangeSet {
 impl From<BdkChangeSet> for ChangeSet {
     fn from(inner: BdkChangeSet) -> Self {
         ChangeSet(inner)
-    }
-}
-
-impl From<&BdkChangeSet> for ChangeSet {
-    fn from(inner: &BdkChangeSet) -> Self {
-        ChangeSet(inner.clone())
     }
 }
 

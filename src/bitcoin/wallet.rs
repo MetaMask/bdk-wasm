@@ -109,12 +109,12 @@ impl Wallet {
         self.0.borrow().list_unspent().map(Into::into).collect()
     }
 
-    pub fn latest_checkpoint(&self) -> CheckPoint {
-        self.0.borrow().latest_checkpoint().into()
+    pub fn list_output(&self) -> Vec<LocalOutput> {
+        self.0.borrow().list_output().map(Into::into).collect()
     }
 
-    pub fn staged(&self) -> Option<ChangeSet> {
-        self.0.borrow().staged().map(Into::into)
+    pub fn latest_checkpoint(&self) -> CheckPoint {
+        self.0.borrow().latest_checkpoint().into()
     }
 
     pub fn take_staged(&self) -> Option<ChangeSet> {
