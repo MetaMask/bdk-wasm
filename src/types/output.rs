@@ -1,10 +1,13 @@
 use bdk_wallet::LocalOutput as BdkLocalOutput;
-use std::ops::Deref;
+use std::{ops::Deref, str::FromStr};
 use wasm_bindgen::prelude::wasm_bindgen;
 
 use bitcoin::{OutPoint as BdkOutpoint, TxOut as BdkTxOut};
 
-use crate::types::{Amount, KeychainKind};
+use crate::{
+    result::JsResult,
+    types::{Amount, KeychainKind},
+};
 
 use super::Txid;
 
@@ -26,6 +29,11 @@ impl Outpoint {
     #[wasm_bindgen(constructor)]
     pub fn new(txid: Txid, vout: u32) -> Self {
         BdkOutpoint::new(txid.into(), vout).into()
+    }
+
+    pub fn from_str(outpoint_str: String) -> JsResult<Self> {
+        let outpoint = BdkOutpoint::from_str(&outpoint_str)?;
+        Ok(outpoint.into())
     }
 
     /// The index of the referenced output in its transaction's vout.
