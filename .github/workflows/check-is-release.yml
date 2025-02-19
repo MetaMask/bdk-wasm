@@ -16,7 +16,10 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: ${{ github.sha }}
-          # we need this commit + the last so we can compare below
+          # We need:
+          # - the current commit (potentially a new release commit)
+          # - a commit just before (from a previous release)
+          # So we can compare them and trigger a the release workflow.
           fetch-depth: 2
 
       - name: Compare Cargo.toml versions
