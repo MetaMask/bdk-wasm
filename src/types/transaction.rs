@@ -56,8 +56,9 @@ impl Txid {
         Ok(Txid(BdkTxid::from_str(&hash)?))
     }
 
+    #[allow(clippy::inherent_to_string)]
     #[wasm_bindgen(js_name = toString)]
-    pub fn display(&self) -> String {
+    pub fn to_string(&self) -> String {
         self.0.to_string()
     }
 }
