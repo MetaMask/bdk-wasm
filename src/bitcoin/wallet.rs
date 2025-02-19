@@ -14,6 +14,10 @@ use crate::{
 
 use super::TxBuilder;
 
+// We wrap a `BdkWallet` in `Rc<RefCell<...>>` because `wasm_bindgen` do not
+// support Rust's lifetimes. This allows us to forward a reference to the
+// internal wallet when using `build_tx` and to enforce the lifetime at runtime
+// and to preserve "safe mutability".
 #[wasm_bindgen]
 pub struct Wallet(Rc<RefCell<BdkWallet>>);
 
