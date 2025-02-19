@@ -30,7 +30,6 @@ pub struct TxBuilder {
 #[wasm_bindgen]
 impl TxBuilder {
     // We make this constructor only visible to the crate to hide the use of the `Rc<RefCell<BdkWallet>>` in `Wallet::build_tx`.
-    // the 
     pub(crate) fn new(wallet: Rc<RefCell<BdkWallet>>) -> TxBuilder {
         TxBuilder {
             wallet,
