@@ -1,7 +1,7 @@
 {
   "scripts": {
-    "build-node": "wasm-pack build --target nodejs --all-features",
-    "test": "yarn build-node && jest"
+    "build": "wasm-pack build --target nodejs --all-features",
+    "test": "yarn build && jest"
   },
   "devDependencies": {
     "@types/jest": "^29.5.14",

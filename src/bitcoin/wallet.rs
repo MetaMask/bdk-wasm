@@ -73,10 +73,12 @@ impl Wallet {
         Ok(())
     }
 
+    #[wasm_bindgen(getter)]
     pub fn network(&self) -> Network {
         self.0.borrow().network().into()
     }
 
+    #[wasm_bindgen(getter)]
     pub fn balance(&self) -> Balance {
         self.0.borrow().balance().into()
     }
@@ -117,6 +119,7 @@ impl Wallet {
         self.0.borrow().list_output().map(Into::into).collect()
     }
 
+    #[wasm_bindgen(getter)]
     pub fn latest_checkpoint(&self) -> CheckPoint {
         self.0.borrow().latest_checkpoint().into()
     }

@@ -5,7 +5,7 @@ on:
 
 jobs:
   build-test:
-    name: Build and test
+    name: Build and test - Browser
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -36,6 +36,18 @@ jobs:
       - name: Test
         if: ${{ matrix.features != 'all' }}
         run: wasm-pack test --chrome --firefox --headless --features ${{ matrix.features }}
+
+  build-test-node:
+    name: Build and test - Node
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+      - name: Install wasm-pack
+        run: curl https://raw.githubusercontent.com/rustwasm/wasm-pack/a3a48401795cd4b3afe1d74568c93675a04f3970/installer/init.sh -sSf | sh -s -- -f
+      - name: Test
+        working-directory: tests/node
+        run: yarn test
 
   lint:
     name: Lint (fmt + clippy)
