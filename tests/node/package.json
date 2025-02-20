@@ -1,0 +1,17 @@
+{
+  "scripts": {
+    "build-node": "wasm-pack build --target nodejs --all-features",
+    "test": "yarn build-node && jest"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.14",
+    "bip39": "^3.1.0",
+    "jest": "^29.0.0",
+    "ts-jest": "^29.2.5",
+    "typescript": "^5.7.3"
+  },
+  "packageManager": "yarn@4.5.1",
+  "engines": {
+    "node": ">= 20"
+  }
+}
