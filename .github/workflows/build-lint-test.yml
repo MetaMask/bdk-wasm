@@ -41,10 +41,19 @@ jobs:
     name: Build and test - Node
     runs-on: ubuntu-latest
     steps:
-      - name: checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      - name: Enable Corepack
+        run: corepack enable
       - name: Install wasm-pack
         run: curl https://raw.githubusercontent.com/rustwasm/wasm-pack/a3a48401795cd4b3afe1d74568c93675a04f3970/installer/init.sh -sSf | sh -s -- -f
+      - name: Use Node.js 22.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+          cache: "yarn"
+      - name: Install dependencies
+        working-directory: tests/node
+        run: yarn --immutable --immutable-cache
       - name: Test
         working-directory: tests/node
         run: yarn test
