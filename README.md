@@ -45,6 +45,12 @@ For a lightweight library providing stateless utility functions, see [`bitcoinjs
 yarn add bitcoindevkit
 ```
 
+## Example Node.js Usage
+```sh
+npm install
+npm run test
+```
+
 ## Notes on WASM Specific Considerations
 
 > ⚠️ **Important:** There are several limitations to using BDK in WASM. Basically any functionality that requires OS access is not directly available in WASM and must therefore be handled in JavaScript. However, there are viable workarounds documented below. Some key limitations include:

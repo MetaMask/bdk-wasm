@@ -1,0 +1,9 @@
+{
+  "type": "module",
+  "scripts": {
+    "test": "node --experimental-wasm-modules test.js"
+  },
+  "devDependencies": {
+    "bitcoindevkit": "0.1.3"
+  }
+} 
