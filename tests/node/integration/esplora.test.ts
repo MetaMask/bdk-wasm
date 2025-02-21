@@ -5,8 +5,8 @@ describe("Esplora client", () => {
   const parallelRequests = 1;
   const wallet = Wallet.create(
     "signet",
-    "wpkh(tprv8ZgxMBicQKsPf6vydw7ixvsLKY79hmeXujBkGCNCApyft92yVYng2y28JpFZcneBYTTHycWSRpokhHE25GfHPBxnW5GpSm2dMWzEi9xxEyU/84'/1'/0'/0/*)#uel0vg9p",
-    "wpkh(tprv8ZgxMBicQKsPf6vydw7ixvsLKY79hmeXujBkGCNCApyft92yVYng2y28JpFZcneBYTTHycWSRpokhHE25GfHPBxnW5GpSm2dMWzEi9xxEyU/84'/1'/0'/1/*)#dd6w3a4e"
+    "wpkh(tprv8ZgxMBicQKsPe2qpAuh1K1Hig72LCoP4JgNxZM2ZRWHZYnpuw5oHoGBsQm7Qb8mLgPpRJVn3hceWgGQRNbPD6x1pp2Qme2YFRAPeYh7vmvE/84'/1'/0'/0/*)#a6kgzlgq",
+    "wpkh(tprv8ZgxMBicQKsPe2qpAuh1K1Hig72LCoP4JgNxZM2ZRWHZYnpuw5oHoGBsQm7Qb8mLgPpRJVn3hceWgGQRNbPD6x1pp2Qme2YFRAPeYh7vmvE/84'/1'/0'/1/*)#vwnfl2cc"
   );
   const esploraClient = new EsploraClient("https://mutinynet.com/api");
 
@@ -21,5 +21,5 @@ describe("Esplora client", () => {
 
     expect(wallet.balance.trusted_spendable.to_sat()).toBeGreaterThan(0);
     expect(wallet.latest_checkpoint.height).toBeGreaterThan(0);
-  }, 30000);
+  }, 60000);
 });
