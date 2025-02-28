@@ -10,12 +10,9 @@
   <p>
     <a href=""><img alt="NPM Package" src="https://img.shields.io/npm/v/bitcoindevkit.svg"/></a>
     <a href="https://github.com/MetaMask/bdk-wasm/blob/master/LICENSE"><img alt="MIT or Apache-2.0 Licensed" src="https://img.shields.io/badge/license-MIT%2FApache--2.0-blue.svg"/></a>
-    <a href="https://coveralls.io/github/MetaMask/bdk-wasm?branch=main"><img src="https://coveralls.io/repos/github/MetaMask/bdk-wasm/badge.svg?branch=main"/></a>
-    <a href="https://blog.rust-lang.org/2022/08/11/Rust-1.63.0.html"><img alt="Rustc Version 1.63.0+" src="https://img.shields.io/badge/rustc-1.63.0%2B-lightgrey.svg"/></a>
+    <a href="https://blog.rust-lang.org/2023/10/05/Rust-1.73.0.html"><img alt="Rustc Version 1.73.0+" src="https://img.shields.io/badge/rustc-1.73.0%2B-lightgrey.svg"/></a>
     <a href="https://discord.gg/d7NkDKm"><img alt="Chat on Discord" src="https://img.shields.io/discord/753336465005608961?logo=discord"></a>
   </p>
-
-<sub>Built with 🦀🕸 by <a href="https://rustwasm.github.io/">The Rust and WebAssembly Working Group</a></sub>
 
 </div>
 
@@ -47,26 +44,21 @@ yarn add bitcoindevkit
 
 ## Notes on WASM Specific Considerations
 
-> ⚠️ **Important:** There are several limitations to using BDK in WASM. Basically any functionality that requires OS access is not directly available in WASM and must therefore be handled in JavaScript. However, there are viable workarounds documented below. Some key limitations include:
+> [!WARNING]  
+> There are several limitations to using BDK in WASM. Basically any functionality that requires the OS standard library is not directly available in WASM. However, there are viable workarounds documented below. Some key limitations include:
 >
 > - No access to the file system
-> - No access to the system time
 > - Network access is limited to http(s)
 
-## WASM Considerations Overview
+### WASM Considerations Overview
 
-### No access to the file system
-With no direct access to the file system, persistence cannot be handled by BDK directly. Instead, an in memory wallet must be used in the WASM environment, and the data must be exported using `wallet.take_staged()`. This will export the changeset for the updates to the wallet state, which must then be merged with current wallet state in JS (will depend on your persistence strategy). When you restart your app, you can feed your persisted wallet data to `wallet.load()` to recover the wallet state.
+#### No access to the file system
 
-### No access to the system time
-Any function that requires system time, such as any sort of timestamp, must access system time through a wasm binding to the JavaScript environment. However, in the case of `wallet.apply_update()`, this is being handled behind the scenes. If it weren't you'd have to use `wallet.apply_update_at()` instead. But it's worth keeping this limitation in mind in case you do hit an error related to system time access limitations.
+With no direct access to the file system, persistence cannot be handled by BDK directly. Instead, an in memory wallet must be used in the WASM environment, and the data must be exported using `wallet.take_staged()`. This will export the changeset for the updates to the wallet state, which must then be merged with current wallet state in JS (will depend on your persistence strategy). The persisted `ChangeSet` can be passed to `wallet.load()` to recover the wallet.
 
-### Network access is limited to http(s)
-This effectively means that the blockchain client must be an Esplora instance. Both RPC and Electrum clients require sockets and will not work for BDK in a WASM environment out of the box.
+#### Network access is limited to http(s)
 
-### Troubleshooting
-WASM errors can be quite cryptic, so it's important to understand the limitations of the WASM environment. One common error you might see while running a BDK function through a WASM binding in the browser is `unreachable`. This indicates you're trying to access OS level functionality through rust that isn't available in WASM.
-
+This essentially means the library only supports [Esplora](https://github.com/blockstream/esplora/blob/master/API.md) as blockchain client. Both RPC and Electrum clients require sockets and will not work for BDK in a WASM environment out of the box.
 
 ## Development Environment
 
@@ -95,11 +87,11 @@ Additionally, if you're using rust-analyzer in VSCode, you'll want to add the fo
 
 ```json
 {
-    "rust-analyzer.server.extraEnv": {
-        "AR": "/opt/homebrew/opt/llvm/bin/llvm-ar",
-        "CC": "/opt/homebrew/opt/llvm/bin/clang"
-    },
-    "rust-analyzer.cargo.target": "wasm32-unknown-unknown"
+  "rust-analyzer.server.extraEnv": {
+    "AR": "/opt/homebrew/opt/llvm/bin/llvm-ar",
+    "CC": "/opt/homebrew/opt/llvm/bin/clang"
+  },
+  "rust-analyzer.cargo.target": "wasm32-unknown-unknown"
 }
 ```
 

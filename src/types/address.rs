@@ -23,8 +23,8 @@ impl AddressInfo {
 
     /// Address
     #[wasm_bindgen(getter)]
-    pub fn address(&self) -> String {
-        self.0.to_string()
+    pub fn address(&self) -> Address {
+        self.0.address.clone().into()
     }
 
     /// Type of keychain
