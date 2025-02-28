@@ -2,11 +2,11 @@ use bdk_wallet::LocalOutput as BdkLocalOutput;
 use std::{ops::Deref, str::FromStr};
 use wasm_bindgen::prelude::wasm_bindgen;
 
-use bitcoin::{OutPoint as BdkOutpoint, TxOut as BdkTxOut};
+use bitcoin::{OutPoint as BdkOutPoint, TxOut as BdkTxOut};
 
 use crate::{
     result::JsResult,
-    types::{Amount, KeychainKind},
+    types::{Amount, KeychainKind, ScriptBuf},
 };
 
 use super::Txid;
@@ -14,10 +14,10 @@ use super::Txid;
 /// A reference to a transaction output.
 #[wasm_bindgen]
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct Outpoint(BdkOutpoint);
+pub struct OutPoint(BdkOutPoint);
 
-impl Deref for Outpoint {
-    type Target = BdkOutpoint;
+impl Deref for OutPoint {
+    type Target = BdkOutPoint;
 
     fn deref(&self) -> &Self::Target {
         &self.0
@@ -25,14 +25,14 @@ impl Deref for Outpoint {
 }
 
 #[wasm_bindgen]
-impl Outpoint {
+impl OutPoint {
     #[wasm_bindgen(constructor)]
     pub fn new(txid: Txid, vout: u32) -> Self {
-        BdkOutpoint::new(txid.into(), vout).into()
+        BdkOutPoint::new(txid.into(), vout).into()
     }
 
     pub fn from_string(outpoint_str: &str) -> JsResult<Self> {
-        let outpoint = BdkOutpoint::from_str(outpoint_str)?;
+        let outpoint = BdkOutPoint::from_str(outpoint_str)?;
         Ok(outpoint.into())
     }
 
@@ -55,14 +55,14 @@ impl Outpoint {
     }
 }
 
-impl From<BdkOutpoint> for Outpoint {
-    fn from(inner: BdkOutpoint) -> Self {
-        Outpoint(inner)
+impl From<BdkOutPoint> for OutPoint {
+    fn from(inner: BdkOutPoint) -> Self {
+        OutPoint(inner)
     }
 }
 
-impl From<Outpoint> for BdkOutpoint {
-    fn from(outpoint: Outpoint) -> Self {
+impl From<OutPoint> for BdkOutPoint {
+    fn from(outpoint: OutPoint) -> Self {
         outpoint.0
     }
 }
@@ -92,11 +92,31 @@ impl TxOut {
     pub fn value(&self) -> Amount {
         self.0.value.into()
     }
+
+    /// The script which must be satisfied for the output to be spent.
+    #[wasm_bindgen(getter)]
+    pub fn script_pubkey(&self) -> ScriptBuf {
+        self.0.script_pubkey.clone().into()
+    }
+
+    /// Returns the total number of bytes that this output contributes to a transaction.
+    ///
+    /// There is no difference between base size vs total size for outputs.
+    #[wasm_bindgen(getter)]
+    pub fn size(&self) -> usize {
+        self.0.size()
+    }
 }
 
 impl From<BdkTxOut> for TxOut {
     fn from(inner: BdkTxOut) -> Self {
         TxOut(inner)
+    }
+}
+
+impl From<&BdkTxOut> for TxOut {
+    fn from(inner: &BdkTxOut) -> Self {
+        TxOut(inner.clone())
     }
 }
 
@@ -134,7 +154,7 @@ impl LocalOutput {
 
     /// Reference to a transaction output
     #[wasm_bindgen(getter)]
-    pub fn outpoint(&self) -> Outpoint {
+    pub fn outpoint(&self) -> OutPoint {
         self.0.outpoint.into()
     }
 

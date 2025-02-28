@@ -5,10 +5,11 @@ use js_sys::Date;
 use wasm_bindgen::{prelude::wasm_bindgen, JsError};
 
 use crate::{
+    bitcoin::WalletTx,
     result::JsResult,
     types::{
         AddressInfo, Balance, ChangeSet, CheckPoint, FullScanRequest, KeychainKind, LocalOutput, Network, Psbt,
-        SyncRequest, Update,
+        SyncRequest, Txid, Update,
     },
 };
 
@@ -117,6 +118,14 @@ impl Wallet {
 
     pub fn list_output(&self) -> Vec<LocalOutput> {
         self.0.borrow().list_output().map(Into::into).collect()
+    }
+
+    pub fn transactions(&self) -> Vec<WalletTx> {
+        self.0.borrow().transactions().map(Into::into).collect()
+    }
+
+    pub fn get_tx(&self, txid: Txid) -> Option<WalletTx> {
+        self.0.borrow().get_tx(txid.into()).map(Into::into)
     }
 
     #[wasm_bindgen(getter)]

@@ -6,7 +6,7 @@ use wasm_bindgen::prelude::wasm_bindgen;
 
 use crate::{
     result::JsResult,
-    types::{Address, FeeRate, Outpoint, Psbt, Recipient},
+    types::{Address, FeeRate, OutPoint, Psbt, Recipient},
 };
 
 /// A transaction builder.
@@ -20,7 +20,7 @@ use crate::{
 pub struct TxBuilder {
     wallet: Rc<RefCell<BdkWallet>>,
     recipients: Vec<Recipient>,
-    unspendable: Vec<Outpoint>,
+    unspendable: Vec<OutPoint>,
     fee_rate: FeeRate,
     drain_wallet: bool,
     drain_to: Option<ScriptBuf>,
@@ -55,13 +55,13 @@ impl TxBuilder {
     }
 
     /// Replace the internal list of unspendable utxos with a new list
-    pub fn unspendable(mut self, unspendable: Vec<Outpoint>) -> Self {
+    pub fn unspendable(mut self, unspendable: Vec<OutPoint>) -> Self {
         self.unspendable = unspendable;
         self
     }
 
     /// Add a utxo to the internal list of unspendable utxos
-    pub fn add_unspendable(mut self, outpoint: Outpoint) -> Self {
+    pub fn add_unspendable(mut self, outpoint: OutPoint) -> Self {
         self.unspendable.push(outpoint);
         self
     }
