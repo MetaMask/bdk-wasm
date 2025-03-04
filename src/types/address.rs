@@ -1,7 +1,7 @@
 use std::{ops::Deref, str::FromStr};
 
 use bdk_wallet::{bitcoin::AddressType as BdkAddressType, AddressInfo as BdkAddressInfo};
-use bitcoin::{Address as BdkAddress, ScriptBuf as BdkScriptBuf};
+use bitcoin::{Address as BdkAddress, Network as BdkNetwork, ScriptBuf as BdkScriptBuf};
 use wasm_bindgen::prelude::wasm_bindgen;
 
 use crate::result::JsResult;
@@ -75,6 +75,13 @@ impl Deref for Address {
 impl Address {
     pub fn from_string(address_str: &str, network: Network) -> JsResult<Self> {
         let address = BdkAddress::from_str(address_str)?.require_network(network.into())?;
+        Ok(Address(address))
+    }
+
+    /// Constructs an [`Address`] from an output script (`scriptPubkey`).
+    pub fn from_script(script_buf: ScriptBuf, network: Network) -> JsResult<Self> {
+        let bdk_network: BdkNetwork = network.into();
+        let address = BdkAddress::from_script(&script_buf, bdk_network)?;
         Ok(Address(address))
     }
 

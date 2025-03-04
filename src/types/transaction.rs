@@ -106,14 +106,12 @@ impl Transaction {
     }
 
     /// Returns the input at `input_index` if it exists.
-    #[wasm_bindgen(getter)]
     pub fn tx_in(&self, input_index: usize) -> JsResult<TxIn> {
         let input = self.0.tx_in(input_index)?;
         Ok(input.into())
     }
 
     /// Returns the output at `output_index` if it exists.
-    #[wasm_bindgen(getter)]
     pub fn tx_out(&self, output_index: usize) -> JsResult<TxOut> {
         let output = self.0.tx_out(output_index)?;
         Ok(output.into())
@@ -146,8 +144,9 @@ impl Deref for Txid {
 
 #[wasm_bindgen]
 impl Txid {
-    pub fn new(hash: String) -> JsResult<Self> {
-        Ok(Txid(BdkTxid::from_str(&hash)?))
+    pub fn from_string(txid_str: &str) -> JsResult<Self> {
+        let txid = BdkTxid::from_str(txid_str)?;
+        Ok(txid.into())
     }
 
     #[allow(clippy::inherent_to_string)]

@@ -8,8 +8,8 @@ use crate::{
     bitcoin::WalletTx,
     result::JsResult,
     types::{
-        AddressInfo, Balance, ChangeSet, CheckPoint, FullScanRequest, KeychainKind, LocalOutput, Network, Psbt,
-        SyncRequest, Txid, Update,
+        AddressInfo, Amount, Balance, ChangeSet, CheckPoint, FeeRate, FullScanRequest, KeychainKind, LocalOutput,
+        Network, OutPoint, Psbt, SentAndReceived, SyncRequest, Transaction, TxGraph, Txid, Update,
     },
 };
 
@@ -120,6 +120,10 @@ impl Wallet {
         self.0.borrow().list_output().map(Into::into).collect()
     }
 
+    pub fn get_utxo(&self, op: OutPoint) -> Option<LocalOutput> {
+        self.0.borrow().get_utxo(op.into()).map(Into::into)
+    }
+
     pub fn transactions(&self) -> Vec<WalletTx> {
         self.0.borrow().transactions().map(Into::into).collect()
     }
@@ -152,5 +156,25 @@ impl Wallet {
 
     pub fn build_tx(&self) -> TxBuilder {
         TxBuilder::new(self.0.clone())
+    }
+
+    pub fn calculate_fee(&self, tx: Transaction) -> JsResult<Amount> {
+        let fee = self.0.borrow().calculate_fee(&tx.into())?;
+        Ok(fee.into())
+    }
+
+    pub fn calculate_fee_rate(&self, tx: Transaction) -> JsResult<FeeRate> {
+        let fee_rate = self.0.borrow().calculate_fee_rate(&tx.into())?;
+        Ok(fee_rate.into())
+    }
+
+    pub fn sent_and_received(&self, tx: Transaction) -> JsResult<SentAndReceived> {
+        let (sent, received) = self.0.borrow().sent_and_received(&tx.into());
+        Ok(SentAndReceived(sent.into(), received.into()))
+    }
+
+    #[wasm_bindgen(getter)]
+    pub fn tx_graph(&self) -> TxGraph {
+        self.0.borrow().tx_graph().into()
     }
 }
