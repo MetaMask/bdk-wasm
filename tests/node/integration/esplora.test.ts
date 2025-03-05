@@ -9,7 +9,7 @@ import {
 } from "../../../pkg/bitcoindevkit";
 
 // Tests are expected to run in order
-describe("Esplora client", () => {
+describe.only("Esplora client", () => {
   const stopGap = 5;
   const parallelRequests = 1;
   const externalDescriptor =
@@ -27,24 +27,24 @@ describe("Esplora client", () => {
   let wallet: Wallet;
   const esploraClient = new EsploraClient(esploraURL);
 
-  it("Creates a new wallet", () => {
+  it("creates a new wallet", () => {
     wallet = Wallet.create(network, externalDescriptor, internalDescriptor);
     expect(wallet.peek_address("external", 0).address.toString()).toBe(
       "tb1qq2a8ypxglm07luzq8rl29vxkrwxt3j04ac84ze"
     );
   });
 
-  it("Synchronizes a wallet", async () => {
-    let request = wallet.start_sync_with_revealed_spks();
-    let update = await esploraClient.sync(request, parallelRequests);
+  it("synchronizes a wallet", async () => {
+    const request = wallet.start_sync_with_revealed_spks();
+    const update = await esploraClient.sync(request, parallelRequests);
     wallet.apply_update(update);
 
     expect(wallet.latest_checkpoint.height).toBeGreaterThan(0);
   });
 
-  it("Performs full scan on a wallet", async () => {
-    let request = wallet.start_full_scan();
-    let update = await esploraClient.full_scan(
+  it("performs full scan on a wallet", async () => {
+    const request = wallet.start_full_scan();
+    const update = await esploraClient.full_scan(
       request,
       stopGap,
       parallelRequests
@@ -55,7 +55,7 @@ describe("Esplora client", () => {
     expect(wallet.latest_checkpoint.height).toBeGreaterThan(0);
   });
 
-  it("Fetches fee estimates", async () => {
+  it("fetches fee estimates", async () => {
     const confirmationTarget = 2;
     const feeEstimates = await esploraClient.get_fee_estimates();
 
@@ -64,7 +64,7 @@ describe("Esplora client", () => {
     feeRate = new FeeRate(BigInt(Math.floor(fee)));
   });
 
-  it("Sends a transaction", async () => {
+  it("sends a transaction", async () => {
     const sendAmount = Amount.from_sat(BigInt(1000));
     expect(wallet.balance.trusted_spendable.to_sat()).toBeGreaterThan(
       sendAmount.to_sat()
@@ -97,26 +97,24 @@ describe("Esplora client", () => {
     await esploraClient.broadcast(tx);
 
     // Assert that we are aware of newly created addresses that were revealed during PSBT creation
-    let currentDerivationIndex = loadedWallet.derivation_index("internal");
+    const currentDerivationIndex = loadedWallet.derivation_index("internal");
     expect(initialDerivationIndex).toBeLessThan(currentDerivationIndex);
 
-    let fetchedTx = await esploraClient.get_tx(tx.compute_txid());
+    const fetchedTx = await esploraClient.get_tx(tx.compute_txid());
     expect(fetchedTx).toBeDefined();
-
-    console.log("Transaction ID:", fetchedTx.compute_txid().toString());
   });
 
   it("excludes utxos from a transaction", () => {
-    let utxos = wallet.list_unspent();
+    const utxos = wallet.list_unspent();
     expect(utxos.length).toBeGreaterThan(0);
 
     // Exclude all UTXOs and expect an insufficient funds error
-    expect(
+    expect(() => {
       wallet
         .build_tx()
         .drain_wallet()
         .unspendable(utxos.map((utxo) => utxo.outpoint))
-        .finish()
-    ).toThrow();
+        .finish();
+    }).toThrow();
   });
 });

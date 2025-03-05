@@ -37,7 +37,7 @@ describe("Utilities", () => {
   it("extracts descriptors from xpriv", async () => {
     const xpriv =
       "tprv8g4stFEyX1zQoi4oNBdUFy4cDqWcyWu1kacHgK3RRvTdTPDm8HTxhERpV9JLTct69h4479xKJXm85SYkFZ4eMUsru5MdUNkeouuzbivKAJp";
-    let fingerprint = "27f9035f";
+    const fingerprint = "27f9035f";
     const descriptors = xpriv_to_descriptor(
       xpriv,
       fingerprint,
@@ -56,7 +56,7 @@ describe("Utilities", () => {
   it("extracts descriptors from xpub", async () => {
     const xpub =
       "tpubDCkv2fHDfPg5hB6bFqJ4fNiins2Z8r5vKtD4xq5irCG2HsUXkgHYsj3gfGTdvAv41hoJeXjfxu7EBQqZMm6SVkxztKFtaaE7HuLdkuL7KNq";
-    let fingerprint = "27f9035f";
+    const fingerprint = "27f9035f";
     const descriptors = xpub_to_descriptor(
       xpub,
       fingerprint,

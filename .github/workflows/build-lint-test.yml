@@ -37,8 +37,8 @@ jobs:
         if: ${{ matrix.features != 'all' }}
         run: wasm-pack test --chrome --firefox --headless --features ${{ matrix.features }}
 
-  build-test-node:
-    name: Build and test - Node
+  build-lint-test-node:
+    name: Build, Lint and test - Node
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -52,9 +52,12 @@ jobs:
           node-version: 22.x
           cache: yarn
           cache-dependency-path: tests/node/yarn.lock
+      - name: Lint
+        working-directory: tests/node
+        run: yarn install && yarn lint
       - name: Test
         working-directory: tests/node
-        run: yarn install && yarn test
+        run: yarn test
 
   lint:
     name: Lint (fmt + clippy)

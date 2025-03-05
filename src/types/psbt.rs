@@ -1,5 +1,6 @@
 use std::ops::{Deref, DerefMut};
 
+use bdk_wallet::psbt::PsbtUtils;
 use bitcoin::{Amount as BdkAmount, Psbt as BdkPsbt, ScriptBuf as BdkScriptBuf};
 use wasm_bindgen::prelude::wasm_bindgen;
 
@@ -41,6 +42,16 @@ impl Psbt {
     pub fn fee(&self) -> JsResult<Amount> {
         let fee = self.0.fee()?;
         Ok(fee.into())
+    }
+
+    pub fn fee_amount(&self) -> Option<Amount> {
+        let fee_amount = self.0.fee_amount();
+        fee_amount.map(Into::into)
+    }
+
+    pub fn fee_rate(&self) -> Option<FeeRate> {
+        let fee_rate = self.0.fee_rate();
+        fee_rate.map(Into::into)
     }
 }
 
