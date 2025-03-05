@@ -9,7 +9,7 @@ import {
 } from "../../../pkg/bitcoindevkit";
 
 // Tests are expected to run in order
-describe("Esplora client", () => {
+describe.only("Esplora client", () => {
   const stopGap = 5;
   const parallelRequests = 1;
   const externalDescriptor =
@@ -102,8 +102,6 @@ describe("Esplora client", () => {
 
     let fetchedTx = await esploraClient.get_tx(tx.compute_txid());
     expect(fetchedTx).toBeDefined();
-
-    console.log("Transaction ID:", fetchedTx.compute_txid().toString());
   });
 
   it("excludes utxos from a transaction", () => {
@@ -111,12 +109,12 @@ describe("Esplora client", () => {
     expect(utxos.length).toBeGreaterThan(0);
 
     // Exclude all UTXOs and expect an insufficient funds error
-    expect(
+    expect(() => {
       wallet
         .build_tx()
         .drain_wallet()
         .unspendable(utxos.map((utxo) => utxo.outpoint))
-        .finish()
-    ).toThrow();
+        .finish();
+    }).toThrow();
   });
 });
