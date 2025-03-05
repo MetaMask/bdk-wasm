@@ -19,7 +19,7 @@ async fn test_browser() {
     set_panic_hook();
 
     let wallet = Wallet::create(
-        Network::Signet, 
+        Network::Signet,
         "wpkh(tprv8ZgxMBicQKsPe2qpAuh1K1Hig72LCoP4JgNxZM2ZRWHZYnpuw5oHoGBsQm7Qb8mLgPpRJVn3hceWgGQRNbPD6x1pp2Qme2YFRAPeYh7vmvE/84'/1'/0'/0/*)#a6kgzlgq".into(),
          "wpkh(tprv8ZgxMBicQKsPe2qpAuh1K1Hig72LCoP4JgNxZM2ZRWHZYnpuw5oHoGBsQm7Qb8mLgPpRJVn3hceWgGQRNbPD6x1pp2Qme2YFRAPeYh7vmvE/84'/1'/0'/1/*)#vwnfl2cc".into(),
     ).expect("wallet");
@@ -35,5 +35,3 @@ async fn test_browser() {
     let sync_block_height = wallet.latest_checkpoint().height();
     assert!(sync_block_height > block_height);
 }
-
-
