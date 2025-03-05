@@ -3,15 +3,15 @@ import type { Network } from "../../../pkg/bitcoindevkit";
 
 describe("Wallet", () => {
   const network: Network = "testnet";
-  let externalDesc =
+  const externalDesc =
     "wpkh(tprv8ZgxMBicQKsPf6vydw7ixvsLKY79hmeXujBkGCNCApyft92yVYng2y28JpFZcneBYTTHycWSRpokhHE25GfHPBxnW5GpSm2dMWzEi9xxEyU/84'/1'/0'/0/*)#uel0vg9p";
-  let internalDesc =
+  const internalDesc =
     "wpkh(tprv8ZgxMBicQKsPf6vydw7ixvsLKY79hmeXujBkGCNCApyft92yVYng2y28JpFZcneBYTTHycWSRpokhHE25GfHPBxnW5GpSm2dMWzEi9xxEyU/84'/1'/0'/1/*)#dd6w3a4e";
 
   it("creates a new wallet from descriptors", () => {
     const wallet = Wallet.create(network, externalDesc, internalDesc);
 
-    let address = wallet.peek_address("external", 0);
+    const address = wallet.peek_address("external", 0);
 
     expect(wallet.network).toBe(network);
     expect(address.address.toString()).toBe(

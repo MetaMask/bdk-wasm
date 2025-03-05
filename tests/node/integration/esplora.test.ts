@@ -35,16 +35,16 @@ describe.only("Esplora client", () => {
   });
 
   it("synchronizes a wallet", async () => {
-    let request = wallet.start_sync_with_revealed_spks();
-    let update = await esploraClient.sync(request, parallelRequests);
+    const request = wallet.start_sync_with_revealed_spks();
+    const update = await esploraClient.sync(request, parallelRequests);
     wallet.apply_update(update);
 
     expect(wallet.latest_checkpoint.height).toBeGreaterThan(0);
   });
 
   it("performs full scan on a wallet", async () => {
-    let request = wallet.start_full_scan();
-    let update = await esploraClient.full_scan(
+    const request = wallet.start_full_scan();
+    const update = await esploraClient.full_scan(
       request,
       stopGap,
       parallelRequests
@@ -97,15 +97,15 @@ describe.only("Esplora client", () => {
     await esploraClient.broadcast(tx);
 
     // Assert that we are aware of newly created addresses that were revealed during PSBT creation
-    let currentDerivationIndex = loadedWallet.derivation_index("internal");
+    const currentDerivationIndex = loadedWallet.derivation_index("internal");
     expect(initialDerivationIndex).toBeLessThan(currentDerivationIndex);
 
-    let fetchedTx = await esploraClient.get_tx(tx.compute_txid());
+    const fetchedTx = await esploraClient.get_tx(tx.compute_txid());
     expect(fetchedTx).toBeDefined();
   });
 
   it("excludes utxos from a transaction", () => {
-    let utxos = wallet.list_unspent();
+    const utxos = wallet.list_unspent();
     expect(utxos.length).toBeGreaterThan(0);
 
     // Exclude all UTXOs and expect an insufficient funds error
