@@ -27,14 +27,14 @@ describe.only("Esplora client", () => {
   let wallet: Wallet;
   const esploraClient = new EsploraClient(esploraURL);
 
-  it("Creates a new wallet", () => {
+  it("creates a new wallet", () => {
     wallet = Wallet.create(network, externalDescriptor, internalDescriptor);
     expect(wallet.peek_address("external", 0).address.toString()).toBe(
       "tb1qq2a8ypxglm07luzq8rl29vxkrwxt3j04ac84ze"
     );
   });
 
-  it("Synchronizes a wallet", async () => {
+  it("synchronizes a wallet", async () => {
     let request = wallet.start_sync_with_revealed_spks();
     let update = await esploraClient.sync(request, parallelRequests);
     wallet.apply_update(update);
@@ -42,7 +42,7 @@ describe.only("Esplora client", () => {
     expect(wallet.latest_checkpoint.height).toBeGreaterThan(0);
   });
 
-  it("Performs full scan on a wallet", async () => {
+  it("performs full scan on a wallet", async () => {
     let request = wallet.start_full_scan();
     let update = await esploraClient.full_scan(
       request,
@@ -55,7 +55,7 @@ describe.only("Esplora client", () => {
     expect(wallet.latest_checkpoint.height).toBeGreaterThan(0);
   });
 
-  it("Fetches fee estimates", async () => {
+  it("fetches fee estimates", async () => {
     const confirmationTarget = 2;
     const feeEstimates = await esploraClient.get_fee_estimates();
 
@@ -64,7 +64,7 @@ describe.only("Esplora client", () => {
     feeRate = new FeeRate(BigInt(Math.floor(fee)));
   });
 
-  it("Sends a transaction", async () => {
+  it("sends a transaction", async () => {
     const sendAmount = Amount.from_sat(BigInt(1000));
     expect(wallet.balance.trusted_spendable.to_sat()).toBeGreaterThan(
       sendAmount.to_sat()
