@@ -9,7 +9,7 @@ use crate::{
     result::JsResult,
     types::{
         AddressInfo, Amount, Balance, ChangeSet, CheckPoint, FeeRate, FullScanRequest, KeychainKind, LocalOutput,
-        Network, OutPoint, Psbt, SentAndReceived, SyncRequest, Transaction, TxGraph, Txid, Update,
+        Network, OutPoint, Psbt, ScriptBuf, SentAndReceived, SpkIndexed, SyncRequest, Transaction, Txid, Update,
     },
 };
 
@@ -173,8 +173,14 @@ impl Wallet {
         Ok(SentAndReceived(sent.into(), received.into()))
     }
 
-    #[wasm_bindgen(getter)]
-    pub fn tx_graph(&self) -> TxGraph {
-        self.0.borrow().tx_graph().into()
+    pub fn is_mine(&self, script: ScriptBuf) -> bool {
+        self.0.borrow().is_mine(script.into())
+    }
+
+    pub fn derivation_of_spk(&self, spk: ScriptBuf) -> Option<SpkIndexed> {
+        self.0
+            .borrow()
+            .derivation_of_spk(spk.into())
+            .map(|(keychain, index)| SpkIndexed(keychain.into(), index))
     }
 }
