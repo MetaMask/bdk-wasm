@@ -9,7 +9,7 @@ import {
 } from "../../../pkg/bitcoindevkit";
 
 // Tests are expected to run in order
-describe.only("Esplora client", () => {
+describe("Esplora client", () => {
   const stopGap = 5;
   const parallelRequests = 1;
   const externalDescriptor =
@@ -17,7 +17,7 @@ describe.only("Esplora client", () => {
   const internalDescriptor =
     "wpkh(tprv8ZgxMBicQKsPe2qpAuh1K1Hig72LCoP4JgNxZM2ZRWHZYnpuw5oHoGBsQm7Qb8mLgPpRJVn3hceWgGQRNbPD6x1pp2Qme2YFRAPeYh7vmvE/84'/1'/0'/1/*)#vwnfl2cc";
   const network: Network = "signet";
-  const esploraURL = "https://mutinynet.com/api";
+  const esploraUrl = "https://mutinynet.com/api";
   const recipientAddress = Address.from_string(
     "tb1qd28npep0s8frcm3y7dxqajkcy2m40eysplyr9v",
     network
@@ -25,7 +25,7 @@ describe.only("Esplora client", () => {
 
   let feeRate: FeeRate;
   let wallet: Wallet;
-  const esploraClient = new EsploraClient(esploraURL);
+  const esploraClient = new EsploraClient(esploraUrl);
 
   it("creates a new wallet", () => {
     wallet = Wallet.create(network, externalDescriptor, internalDescriptor);

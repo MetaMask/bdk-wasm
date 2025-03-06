@@ -52,9 +52,12 @@ jobs:
           node-version: 22.x
           cache: yarn
           cache-dependency-path: tests/node/yarn.lock
+      - name: Install
+        working-directory: tests/node
+        run: yarn install --immutable --immutable-cache
       - name: Lint
         working-directory: tests/node
-        run: yarn install && yarn lint
+        run: yarn lint
       - name: Test
         working-directory: tests/node
         run: yarn test
