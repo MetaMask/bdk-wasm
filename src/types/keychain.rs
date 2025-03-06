@@ -29,3 +29,6 @@ impl From<KeychainKind> for BdkKeychainKind {
         }
     }
 }
+
+#[wasm_bindgen]
+pub struct SpkIndexed(pub KeychainKind, pub u32);

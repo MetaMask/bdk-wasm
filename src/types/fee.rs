@@ -59,6 +59,24 @@ impl FeeRate {
     pub fn new(sat_vb: u64) -> Self {
         FeeRate(BdkFeeRate::from_sat_per_vb_unchecked(sat_vb))
     }
+
+    /// Returns raw fee rate.
+    #[wasm_bindgen(getter)]
+    pub fn to_sat_per_kwu(&self) -> u64 {
+        self.0.to_sat_per_kwu()
+    }
+
+    /// Converts to sat/vB rounding up.
+    #[wasm_bindgen(getter)]
+    pub fn to_sat_per_vb_ceil(&self) -> u64 {
+        self.0.to_sat_per_vb_ceil()
+    }
+
+    /// Converts to sat/vB rounding down.
+    #[wasm_bindgen(getter)]
+    pub fn to_sat_per_vb_floor(&self) -> u64 {
+        self.0.to_sat_per_vb_floor()
+    }
 }
 
 impl From<BdkFeeRate> for FeeRate {

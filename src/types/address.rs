@@ -1,7 +1,7 @@
 use std::{ops::Deref, str::FromStr};
 
 use bdk_wallet::{bitcoin::AddressType as BdkAddressType, AddressInfo as BdkAddressInfo};
-use bitcoin::Address as BdkAddress;
+use bitcoin::{Address as BdkAddress, Network as BdkNetwork, ScriptBuf as BdkScriptBuf};
 use wasm_bindgen::prelude::wasm_bindgen;
 
 use crate::result::JsResult;
@@ -78,6 +78,13 @@ impl Address {
         Ok(Address(address))
     }
 
+    /// Constructs an [`Address`] from an output script (`scriptPubkey`).
+    pub fn from_script(script_buf: ScriptBuf, network: Network) -> JsResult<Self> {
+        let bdk_network: BdkNetwork = network.into();
+        let address = BdkAddress::from_script(&script_buf, bdk_network)?;
+        Ok(Address(address))
+    }
+
     #[allow(clippy::inherent_to_string)]
     #[wasm_bindgen(js_name = toString)]
     pub fn to_string(&self) -> String {
@@ -94,6 +101,42 @@ impl From<BdkAddress> for Address {
 impl From<Address> for BdkAddress {
     fn from(address: Address) -> Self {
         address.0
+    }
+}
+
+/// An owned, growable script.
+///
+/// `ScriptBuf` is the most common script type that has the ownership over the contents of the
+/// script. It has a close relationship with its borrowed counterpart, [`Script`].
+#[wasm_bindgen]
+pub struct ScriptBuf(BdkScriptBuf);
+
+impl Deref for ScriptBuf {
+    type Target = BdkScriptBuf;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+#[wasm_bindgen]
+impl ScriptBuf {
+    #[allow(clippy::inherent_to_string)]
+    #[wasm_bindgen(js_name = toString)]
+    pub fn to_string(&self) -> String {
+        self.0.to_string()
+    }
+}
+
+impl From<BdkScriptBuf> for ScriptBuf {
+    fn from(inner: BdkScriptBuf) -> Self {
+        ScriptBuf(inner)
+    }
+}
+
+impl From<ScriptBuf> for BdkScriptBuf {
+    fn from(script_buf: ScriptBuf) -> Self {
+        script_buf.0
     }
 }
 

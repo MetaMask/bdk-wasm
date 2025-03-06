@@ -10,7 +10,7 @@ use crate::result::JsResult;
 /// The [Amount] type can be used to express Bitcoin amounts that support
 /// arithmetic and conversion to various denominations.
 #[wasm_bindgen]
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub struct Amount(BdkAmount);
 
 #[wasm_bindgen]
@@ -63,6 +63,9 @@ impl From<Amount> for BdkAmount {
         amount.0
     }
 }
+
+#[wasm_bindgen]
+pub struct SentAndReceived(pub Amount, pub Amount);
 
 /// A set of denominations in which amounts can be expressed.
 #[wasm_bindgen]
