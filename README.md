@@ -42,6 +42,10 @@ For a lightweight library providing stateless utility functions, see [`bitcoinjs
 yarn add bitcoindevkit
 ```
 
+## Example
+
+Refer to `tests/node/integration/example.test.ts` for a quickstart usage example that can be easily modified to run in any js environment.
+
 ## Notes on WASM Specific Considerations
 
 > [!WARNING]  
@@ -103,13 +107,21 @@ wasm-pack build
 
 > Choose your desired features when building: `--features "esplora"`
 
-### Test in Headless Browsers with `wasm-pack test`
+### Rust Tests: Test in Headless Browsers with `wasm-pack test`
 
 ```sh
 wasm-pack test --headless --firefox
 ```
 
 > Works with `--firefox`, `--chrome` or `--safari`.
+
+### JS Tests: Test with Node/Jest
+
+```sh
+cd tests/node
+yarn install
+yarn test
+```
 
 ## License
 
