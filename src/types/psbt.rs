@@ -89,7 +89,7 @@ impl Recipient {
 
     #[wasm_bindgen(getter)]
     pub fn amount(&self) -> Amount {
-        self.amount.clone()
+        self.amount
     }
 }
 
