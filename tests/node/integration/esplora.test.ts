@@ -34,14 +34,6 @@ describe("Esplora client", () => {
     );
   });
 
-  it("synchronizes a wallet", async () => {
-    const request = wallet.start_sync_with_revealed_spks();
-    const update = await esploraClient.sync(request, parallelRequests);
-    wallet.apply_update(update);
-
-    expect(wallet.latest_checkpoint.height).toBeGreaterThan(0);
-  });
-
   it("performs full scan on a wallet", async () => {
     const request = wallet.start_full_scan();
     const update = await esploraClient.full_scan(
@@ -83,19 +75,23 @@ describe("Esplora client", () => {
     expect(finalized).toBeTruthy();
 
     const tx = psbt.extract_tx();
+    const txid = tx.compute_txid();
     await esploraClient.broadcast(tx);
 
     // Assert that we are aware of newly created addresses that were revealed during PSBT creation
     const currentDerivationIndex = wallet.derivation_index("internal");
     expect(initialDerivationIndex).toBeLessThan(currentDerivationIndex);
 
-    const walletTx = wallet.get_tx(tx.compute_txid());
-    expect(walletTx).toBeDefined();
-  });
+    // Synchronizes the wallet to get the new state
+    const request = wallet.start_sync_with_revealed_spks();
+    const update = await esploraClient.sync(request, parallelRequests);
+    wallet.apply_update(update);
 
-  it("lists transactions", async () => {
-    const walletTxs = wallet.transactions();
-    expect(walletTxs.length).toBeGreaterThanOrEqual(1);
+    // Verify the sent transaction is part of the wallet in an unconfirmed state
+    const walletTx = wallet.get_tx(txid);
+    expect(walletTx.last_seen_unconfirmed).toBeDefined();
+    expect(walletTx.chain_position.is_confirmed).toBe(false);
+    expect(walletTx.chain_position.variant).toEqual("Unconfirmed");
   });
 
   it("excludes utxos from a transaction", () => {
