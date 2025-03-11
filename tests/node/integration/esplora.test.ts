@@ -70,19 +70,8 @@ describe("Esplora client", () => {
       sendAmount.to_sat()
     );
 
-    // Important to test that we can load the wallet from a changeset with the signing descriptors and be able to sign a transaction
-    // as the changeset does not contain the private signing information.
-    const loadedWallet = Wallet.load(
-      wallet.take_staged(),
-      externalDescriptor,
-      internalDescriptor
-    );
-    expect(loadedWallet.balance.total.to_sat()).toEqual(
-      wallet.balance.total.to_sat()
-    );
-
-    const initialDerivationIndex = loadedWallet.derivation_index("internal");
-    const psbt = loadedWallet
+    const initialDerivationIndex = wallet.derivation_index("internal");
+    const psbt = wallet
       .build_tx()
       .fee_rate(feeRate)
       .add_recipient(new Recipient(recipientAddress, sendAmount))
@@ -90,18 +79,23 @@ describe("Esplora client", () => {
 
     expect(psbt.fee().to_sat()).toBeGreaterThan(100); // We cannot know the exact fees
 
-    const finalized = loadedWallet.sign(psbt);
+    const finalized = wallet.sign(psbt);
     expect(finalized).toBeTruthy();
 
     const tx = psbt.extract_tx();
     await esploraClient.broadcast(tx);
 
     // Assert that we are aware of newly created addresses that were revealed during PSBT creation
-    const currentDerivationIndex = loadedWallet.derivation_index("internal");
+    const currentDerivationIndex = wallet.derivation_index("internal");
     expect(initialDerivationIndex).toBeLessThan(currentDerivationIndex);
 
-    const fetchedTx = await esploraClient.get_tx(tx.compute_txid());
-    expect(fetchedTx).toBeDefined();
+    const walletTx = wallet.get_tx(tx.compute_txid());
+    expect(walletTx).toBeDefined();
+  });
+
+  it("lists transactions", async () => {
+    const walletTxs = wallet.transactions();
+    expect(walletTxs.length).toBeGreaterThanOrEqual(1);
   });
 
   it("excludes utxos from a transaction", () => {

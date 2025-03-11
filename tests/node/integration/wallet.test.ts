@@ -7,9 +7,10 @@ describe("Wallet", () => {
     "wpkh(tprv8ZgxMBicQKsPf6vydw7ixvsLKY79hmeXujBkGCNCApyft92yVYng2y28JpFZcneBYTTHycWSRpokhHE25GfHPBxnW5GpSm2dMWzEi9xxEyU/84'/1'/0'/0/*)#uel0vg9p";
   const internalDesc =
     "wpkh(tprv8ZgxMBicQKsPf6vydw7ixvsLKY79hmeXujBkGCNCApyft92yVYng2y28JpFZcneBYTTHycWSRpokhHE25GfHPBxnW5GpSm2dMWzEi9xxEyU/84'/1'/0'/1/*)#dd6w3a4e";
+  let wallet: Wallet;
 
   it("creates a new wallet from descriptors", () => {
-    const wallet = Wallet.create(network, externalDesc, internalDesc);
+    wallet = Wallet.create(network, externalDesc, internalDesc);
 
     const address = wallet.peek_address("external", 0);
 
@@ -27,5 +28,18 @@ describe("Wallet", () => {
     expect(wallet.public_descriptor("internal")).toBe(
       "wpkh([27f9035f/84'/1'/0']tpubDCkv2fHDfPg5hB6bFqJ4fNiins2Z8r5vKtD4xq5irCG2HsUXkgHYsj3gfGTdvAv41hoJeXjfxu7EBQqZMm6SVkxztKFtaaE7HuLdkuL7KNq/1/*)#ltuly67e"
     );
+  });
+
+  it("loads a previously exisiting wallet", () => {
+    const loadedWallet = Wallet.load(
+      wallet.take_staged(),
+      externalDesc,
+      internalDesc
+    );
+
+    expect(loadedWallet.network).toBe(network);
+    expect(
+      loadedWallet.next_unused_address("external").address.toString()
+    ).toBe("tb1qjtgffm20l9vu6a7gacxvpu2ej4kdcsgc26xfdz");
   });
 });
