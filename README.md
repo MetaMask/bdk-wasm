@@ -44,7 +44,7 @@ yarn add bitcoindevkit
 
 ## Notes on WASM Specific Considerations
 
-> [!WARNING]  
+> [!WARNING]
 > There are several limitations to using BDK in WASM. Basically any functionality that requires the OS standard library is not directly available in WASM. However, there are viable workarounds documented below. Some key limitations include:
 >
 > - No access to the file system
