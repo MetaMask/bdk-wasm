@@ -51,11 +51,9 @@ jobs:
 
   is-release:
     needs: all-jobs-pass
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     name: Check if release
     uses: ./.github/workflows/check-is-release.yml
-    with:
-      base_ref: main
 
   publish-release:
     needs: is-release

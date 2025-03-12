@@ -2,11 +2,6 @@ name: Check if Release
 
 on:
   workflow_call:
-    inputs:
-      base_ref:
-        description: "The base branch or commit for comparison"
-        required: true
-        type: string
     outputs:
       IS_RELEASE:
         description: "True if Cargo.toml version has been updated"
@@ -19,17 +14,24 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          # We need:
+          # - the current commit (potentially a new release commit)
+          # - a commit just before (from a previous release)
+          # So we can compare them and trigger a the release workflow.
+          fetch-depth: 2
 
       - name: Compare Cargo.toml versions
         id: check-release
         run: |
-          # Extract the version from the current Cargo.toml
-          current_version=$(grep '^version' Cargo.toml | sed 's/version = "//' | sed 's/"//')
+          prev_commit="${{ github.event.before }}"
+          echo "Previous commit: $prev_commit"
 
-          # Extract the version from the previous commit's Cargo.toml
-          git fetch origin ${{ inputs.base_ref }}
-          previous_version=$(git show origin/${{ inputs.base_ref }}:Cargo.toml | grep '^version' | sed 's/version = "//' | sed 's/"//')
-
+          # Extract versions
+          get_version() { grep -E '^version\s*=' | sed -E 's/version\s*=\s*"([^"]+)"/\1/'; }
+          current_version=$(get_version < Cargo.toml)
+          previous_version=$(git show "$prev_commit:Cargo.toml" | get_version)
           echo "Current version: $current_version"
           echo "Previous version: $previous_version"
 

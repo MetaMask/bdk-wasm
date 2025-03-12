@@ -3,16 +3,27 @@ use std::ops::Deref;
 use bitcoin::{Amount as BdkAmount, Denomination as BdkDenomination};
 use wasm_bindgen::prelude::wasm_bindgen;
 
+use crate::result::JsResult;
+
 /// Amount
 ///
 /// The [Amount] type can be used to express Bitcoin amounts that support
 /// arithmetic and conversion to various denominations.
 #[wasm_bindgen]
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub struct Amount(BdkAmount);
 
 #[wasm_bindgen]
 impl Amount {
+    pub fn from_btc(btc: f64) -> JsResult<Self> {
+        let amount = BdkAmount::from_btc(btc)?;
+        Ok(Amount(amount))
+    }
+
+    pub fn from_sat(satoshi: u64) -> Self {
+        Amount(BdkAmount::from_sat(satoshi))
+    }
+
     /// Gets the number of satoshis in this [`Amount`].
     pub fn to_sat(&self) -> u64 {
         self.0.to_sat()
@@ -46,6 +57,15 @@ impl From<BdkAmount> for Amount {
         Amount(inner)
     }
 }
+
+impl From<Amount> for BdkAmount {
+    fn from(amount: Amount) -> Self {
+        amount.0
+    }
+}
+
+#[wasm_bindgen]
+pub struct SentAndReceived(pub Amount, pub Amount);
 
 /// A set of denominations in which amounts can be expressed.
 #[wasm_bindgen]

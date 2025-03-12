@@ -1,0 +1,23 @@
+{
+  "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix .",
+    "build": "wasm-pack build --target nodejs --all-features",
+    "test": "yarn build && jest"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.14",
+    "bip39": "^3.1.0",
+    "eslint": "^9.21.0",
+    "eslint-plugin-jest": "^28.11.0",
+    "globals": "^16.0.0",
+    "jest": "^29.0.0",
+    "ts-jest": "^29.2.5",
+    "typescript": "^5.7.3",
+    "typescript-eslint": "^8.26.0"
+  },
+  "packageManager": "yarn@4.5.1",
+  "engines": {
+    "node": ">= 20"
+  }
+}
