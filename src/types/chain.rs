@@ -125,15 +125,6 @@ impl ChainPosition {
         self.0.is_confirmed()
     }
 
-    #[wasm_bindgen(getter)]
-    pub fn variant(&self) -> String {
-        if self.0.is_confirmed() {
-            "Confirmed".into()
-        } else {
-            "Unconfirmed".into()
-        }
-    }
-
     /// Determines the upper bound of the confirmation height.
     #[wasm_bindgen(getter)]
     pub fn confirmation_height_upper_bound(&self) -> Option<u32> {

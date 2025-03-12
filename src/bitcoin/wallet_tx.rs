@@ -43,6 +43,7 @@ impl WalletTx {
     pub fn last_seen_unconfirmed(&self) -> Option<u64> {
         self.last_seen_unconfirmed
     }
+
     /// How the transaction is observed in the canonical chain (confirmed or unconfirmed).
     #[wasm_bindgen(getter)]
     pub fn chain_position(&self) -> ChainPosition {

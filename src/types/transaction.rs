@@ -116,6 +116,10 @@ impl Transaction {
         let output = self.0.tx_out(output_index)?;
         Ok(output.into())
     }
+
+    pub fn clone(&self) -> Transaction {
+        self.0.clone().into()
+    }
 }
 
 impl From<BdkTransaction> for Transaction {

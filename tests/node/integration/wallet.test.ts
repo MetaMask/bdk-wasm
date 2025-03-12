@@ -30,7 +30,7 @@ describe("Wallet", () => {
     );
   });
 
-  it("loads a previously exisiting wallet", () => {
+  it("loads a previously existing wallet", () => {
     const loadedWallet = Wallet.load(
       wallet.take_staged(),
       externalDesc,

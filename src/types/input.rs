@@ -78,7 +78,7 @@ impl From<&BdkTxIn> for TxIn {
 }
 
 impl From<TxIn> for BdkTxIn {
-    fn from(txout: TxIn) -> Self {
-        txout.0
+    fn from(txin: TxIn) -> Self {
+        txin.0
     }
 }

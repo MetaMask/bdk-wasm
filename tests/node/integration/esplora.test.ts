@@ -91,7 +91,6 @@ describe("Esplora client", () => {
     const walletTx = wallet.get_tx(txid);
     expect(walletTx.last_seen_unconfirmed).toBeDefined();
     expect(walletTx.chain_position.is_confirmed).toBe(false);
-    expect(walletTx.chain_position.variant).toEqual("Unconfirmed");
   });
 
   it("excludes utxos from a transaction", () => {
