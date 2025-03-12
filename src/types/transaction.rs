@@ -11,6 +11,7 @@ use super::{TxIn, TxOut};
 ///
 /// An authenticated movement of coins.
 #[wasm_bindgen]
+#[derive(Clone)]
 pub struct Transaction(BdkTransaction);
 
 impl Deref for Transaction {
@@ -117,8 +118,9 @@ impl Transaction {
         Ok(output.into())
     }
 
-    pub fn clone(&self) -> Transaction {
-        self.0.clone().into()
+    #[wasm_bindgen(js_name = clone)]
+    pub fn js_clone(&self) -> Transaction {
+        self.clone()
     }
 }
 
