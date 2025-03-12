@@ -45,7 +45,7 @@ describe("Esplora client", () => {
 
     expect(wallet.balance.trusted_spendable.to_sat()).toBeGreaterThan(0);
     expect(wallet.latest_checkpoint.height).toBeGreaterThan(0);
-  });
+  }, 30000);
 
   it("fetches fee estimates", async () => {
     const confirmationTarget = 2;
@@ -91,7 +91,7 @@ describe("Esplora client", () => {
     const walletTx = wallet.get_tx(txid);
     expect(walletTx.last_seen_unconfirmed).toBeDefined();
     expect(walletTx.chain_position.is_confirmed).toBe(false);
-  });
+  }, 30000);
 
   it("excludes utxos from a transaction", () => {
     const utxos = wallet.list_unspent();
