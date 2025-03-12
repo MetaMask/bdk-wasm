@@ -38,7 +38,7 @@ serde-wasm-bindgen = "0.6.5"
 
 # Compatibility to compile to WASM
 getrandom = { version = "0.2.15", features = ["js"] }
-ring = { version = "0.17.8", features = ["wasm32_unknown_unknown_js"] }
+ring = { version = "0.17.12", features = ["wasm32_unknown_unknown_js"] }
 gloo-timers = { version = "0.3.0", features = ["futures"] }
 
 # Bitcoin dependencies
