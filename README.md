@@ -44,7 +44,7 @@ yarn add bitcoindevkit
 
 ## Notes on WASM Specific Considerations
 
-> [!WARNING]  
+> [!WARNING]
 > There are several limitations to using BDK in WASM. Basically any functionality that requires the OS standard library is not directly available in WASM. However, there are viable workarounds documented below. Some key limitations include:
 >
 > - No access to the file system
@@ -69,33 +69,16 @@ This essentially means the library only supports [Esplora](https://github.com/bl
 
 #### MacOS special requirement
 
-On MacOS, you should replace the default `llvm` with the one from `brew`:
-
-```sh
-brew install llvm
-```
-
-We recommend creating a `.cargo` folder at the root of the repo with the following `config.toml` file:
-
-```toml
-[env]
-AR = "/opt/homebrew/opt/llvm/bin/llvm-ar"
-CC = "/opt/homebrew/opt/llvm/bin/clang"
-```
-
-Additionally, if you're using rust-analyzer in VSCode, you'll want to add the following to your `.vscode/settings.json` file:
-
-```json
-{
-  "rust-analyzer.server.extraEnv": {
-    "AR": "/opt/homebrew/opt/llvm/bin/llvm-ar",
-    "CC": "/opt/homebrew/opt/llvm/bin/clang"
-  },
-  "rust-analyzer.cargo.target": "wasm32-unknown-unknown"
-}
-```
+Refers to [this section](./DEVELOPMENT.md#build-on-macos).
 
 ### Build with `wasm-pack build`
+
+> [!IMPORTANT]
+> You need the `wasm32-unknown-unknown` toolchain to be installed:
+>
+> ```sh
+> rustup target add wasm32-unknown-unknown
+> ```
 
 ```sh
 wasm-pack build
