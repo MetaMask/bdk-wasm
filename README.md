@@ -69,45 +69,7 @@ This essentially means the library only supports [Esplora](https://github.com/bl
 
 #### MacOS special requirement
 
-On MacOS, you should replace the default `llvm` with the one from `brew`:
-
-```sh
-brew install llvm
-```
-
-> [!TIP]
-> System-wide installation of `rust` might and `rustup` might conflict with `brew`-managed
-> rust installs, see:
-> - https://github.com/rust-lang/rustup/issues/1236
-> - https://rust-lang.github.io/rustup/installation/other.html#homebrew
->
-> You can use the following to use the `brew`-managed `rustup` package:
-> ```sh
-> brew uninstall rust
-> brew unlink rust
-> brew install rustup
-> export PATH="$PATH:$(brew --prefix rustup)/bin" # .{bash,zsh}rc
-> ```
-
-We recommend creating a `.cargo` folder at the root of the repo with the following `config.toml` file:
-
-```toml
-[env]
-AR = "/opt/homebrew/opt/llvm/bin/llvm-ar"
-CC = "/opt/homebrew/opt/llvm/bin/clang"
-```
-
-Additionally, if you're using rust-analyzer in VSCode, you'll want to add the following to your `.vscode/settings.json` file:
-
-```json
-{
-  "rust-analyzer.server.extraEnv": {
-    "AR": "/opt/homebrew/opt/llvm/bin/llvm-ar",
-    "CC": "/opt/homebrew/opt/llvm/bin/clang"
-  },
-  "rust-analyzer.cargo.target": "wasm32-unknown-unknown"
-}
-```
+Refers to [this section](./DEVELOPMENT.md#build-on-macos).
 
 ### Build with `wasm-pack build`
 
