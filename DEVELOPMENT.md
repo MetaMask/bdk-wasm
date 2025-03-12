@@ -30,7 +30,9 @@ your `.vscode/settings.json` file:
 }
 ```
 
-## `rustup` installation (using Homebrew)
+## Troubleshooting
+
+### `rustup` installation (using Homebrew)
 
 System-wide installation of `rust` might conflict with `brew`-managed `rustup` installation, see:
 - https://github.com/rust-lang/rustup/issues/1236
