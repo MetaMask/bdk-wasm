@@ -75,6 +75,20 @@ On MacOS, you should replace the default `llvm` with the one from `brew`:
 brew install llvm
 ```
 
+> [!TIP]
+> System-wide installation of `rust` might and `rustup` might conflict with `brew`-managed
+> rust installs, see:
+> - https://github.com/rust-lang/rustup/issues/1236
+> - https://rust-lang.github.io/rustup/installation/other.html#homebrew
+>
+> You can use the following to use the `brew`-managed `rustup` package:
+> ```sh
+> brew uninstall rust
+> brew unlink rust
+> brew install rustup
+> export PATH="$PATH:$(brew --prefix rustup)/bin" # .{bash,zsh}rc
+> ```
+
 We recommend creating a `.cargo` folder at the root of the repo with the following `config.toml` file:
 
 ```toml
@@ -96,6 +110,13 @@ Additionally, if you're using rust-analyzer in VSCode, you'll want to add the fo
 ```
 
 ### Build with `wasm-pack build`
+
+> [!IMPORTANT]
+> You need the `wasm32-unknown-unknown` toolchain to be installed:
+>
+> ```sh
+> rustup target add wasm32-unknown-unknown
+> ```
 
 ```sh
 wasm-pack build
