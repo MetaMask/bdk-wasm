@@ -5,8 +5,6 @@ on:
     secrets:
       NPM_TOKEN:
         required: true
-      SLACK_WEBHOOK_URL:
-        required: true
 
 jobs:
   publish-release:
@@ -43,8 +41,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "lts/*"
-      - name: Install Yarn
-        run: corepack enable
       - uses: actions/cache@v4
         with:
           path: |
@@ -52,12 +48,8 @@ jobs:
           key: ${{ github.sha }}
           fail-on-cache-miss: true
       - name: Dry Run Publish
-        uses: MetaMask/action-npm-publish@v5
-        with:
-          slack-webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
-          subteam: S042S7RE4AE
-        env:
-          SKIP_PREPACK: true
+        working-directory: pkg
+        run: npm publish --dry-run
 
   publish-npm:
     environment: npm-publish
@@ -70,8 +62,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "lts/*"
-      - name: Install Yarn
-        run: corepack enable
+          registry-url: "https://registry.npmjs.org"
       - uses: actions/cache@v4
         with:
           path: |
@@ -79,8 +70,8 @@ jobs:
           key: ${{ github.sha }}
           fail-on-cache-miss: true
       - name: Publish
-        uses: MetaMask/action-npm-publish@v5
-        with:
-          npm-token: ${{ secrets.NPM_TOKEN }}
+        working-directory: pkg
+        run: npm publish
         env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           SKIP_PREPACK: true
