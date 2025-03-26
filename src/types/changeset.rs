@@ -1,7 +1,7 @@
 use std::ops::Deref;
 
-use bdk_core::Merge;
 use bdk_wallet::{
+    chain::Merge,
     serde_json::{from_str, to_string},
     ChangeSet as BdkChangeSet,
 };
@@ -12,7 +12,7 @@ use crate::result::JsResult;
 
 /// A changeset for [`Wallet`].
 #[wasm_bindgen]
-#[derive(Debug, PartialEq)]
+#[derive(PartialEq)]
 pub struct ChangeSet(BdkChangeSet);
 
 #[wasm_bindgen]

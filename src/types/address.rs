@@ -1,7 +1,9 @@
 use std::{ops::Deref, str::FromStr};
 
-use bdk_wallet::{bitcoin::AddressType as BdkAddressType, AddressInfo as BdkAddressInfo};
-use bitcoin::{Address as BdkAddress, Network as BdkNetwork, ScriptBuf as BdkScriptBuf};
+use bdk_wallet::{
+    bitcoin::{Address as BdkAddress, AddressType as BdkAddressType, Network as BdkNetwork, ScriptBuf as BdkScriptBuf},
+    AddressInfo as BdkAddressInfo,
+};
 use wasm_bindgen::prelude::wasm_bindgen;
 
 use crate::result::JsResult;
@@ -10,7 +12,7 @@ use super::{KeychainKind, Network};
 
 /// A derived address and the index it was found at.
 #[wasm_bindgen]
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct AddressInfo(BdkAddressInfo);
 
 #[wasm_bindgen]
@@ -60,7 +62,7 @@ impl From<BdkAddressInfo> for AddressInfo {
 
 /// A Bitcoin address.
 #[wasm_bindgen]
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct Address(BdkAddress);
 
 impl Deref for Address {
@@ -142,7 +144,6 @@ impl From<ScriptBuf> for BdkScriptBuf {
 
 /// The different types of addresses.
 #[wasm_bindgen]
-#[derive(Debug)]
 pub enum AddressType {
     /// Pay to pubkey hash.
     P2pkh = "p2pkh",

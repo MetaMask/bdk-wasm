@@ -1,9 +1,10 @@
 use std::collections::BTreeSet;
 
-use bdk_core::ConfirmationBlockTime as BdkConfirmationBlockTime;
-use bdk_wallet::chain::ChainPosition as BdkChainPosition;
-use bdk_wallet::WalletTx as BdkWalletTx;
-use bitcoin::{Transaction as BdkTransaction, Txid as BdkTxid};
+use bdk_wallet::{
+    bitcoin::{Transaction as BdkTransaction, Txid as BdkTxid},
+    chain::{ChainPosition as BdkChainPosition, ConfirmationBlockTime as BdkConfirmationBlockTime},
+    WalletTx as BdkWalletTx,
+};
 use wasm_bindgen::prelude::wasm_bindgen;
 
 use crate::types::{ChainPosition, ConfirmationBlockTime, Transaction, Txid};

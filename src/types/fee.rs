@@ -1,11 +1,10 @@
-use bitcoin::FeeRate as BdkFeeRate;
+use bdk_wallet::bitcoin::FeeRate as BdkFeeRate;
 use std::{collections::HashMap, ops::Deref};
 
 use wasm_bindgen::prelude::wasm_bindgen;
 
 /// Map where the key is the confirmation target (in number of blocks) and the value is the estimated feerate (in sat/vB).
 #[wasm_bindgen]
-#[derive(Debug)]
 pub struct FeeEstimates(HashMap<u16, f64>);
 
 impl Deref for FeeEstimates {
@@ -42,7 +41,6 @@ impl From<FeeEstimates> for HashMap<u16, f64> {
 /// This is an integer newtype representing fee rate in `sat/kwu`. It provides protection against mixing
 /// up the types as well as basic formatting features.
 #[wasm_bindgen]
-#[derive(Debug, PartialEq, Eq)]
 pub struct FeeRate(BdkFeeRate);
 
 impl Deref for FeeRate {

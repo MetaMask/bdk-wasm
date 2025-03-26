@@ -1,9 +1,9 @@
-use bitcoin::{Network as BdkNetwork, NetworkKind};
+use bdk_wallet::bitcoin::{Network as BdkNetwork, NetworkKind};
 use wasm_bindgen::prelude::wasm_bindgen;
 
 /// The cryptocurrency network to act on.
 #[wasm_bindgen]
-#[derive(Debug, Clone, Copy)]
+#[derive(Clone, Copy)]
 pub enum Network {
     /// Mainnet Bitcoin.
     Bitcoin = "bitcoin",

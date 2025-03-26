@@ -1,6 +1,6 @@
 use std::ops::Deref;
 
-use bitcoin::{Amount as BdkAmount, Denomination as BdkDenomination};
+use bdk_wallet::bitcoin::{Amount as BdkAmount, Denomination as BdkDenomination};
 use wasm_bindgen::prelude::wasm_bindgen;
 
 use crate::result::JsResult;
@@ -10,7 +10,7 @@ use crate::result::JsResult;
 /// The [Amount] type can be used to express Bitcoin amounts that support
 /// arithmetic and conversion to various denominations.
 #[wasm_bindgen]
-#[derive(Debug, Clone, Copy)]
+#[derive(Clone, Copy)]
 pub struct Amount(BdkAmount);
 
 #[wasm_bindgen]
@@ -69,7 +69,6 @@ pub struct SentAndReceived(pub Amount, pub Amount);
 
 /// A set of denominations in which amounts can be expressed.
 #[wasm_bindgen]
-#[derive(Debug)]
 pub enum Denomination {
     /// BTC
     Bitcoin = "BTC",

@@ -1,7 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use bdk_wallet::Wallet as BdkWallet;
-use bitcoin::ScriptBuf;
+use bdk_wallet::{bitcoin::ScriptBuf, Wallet as BdkWallet};
 use wasm_bindgen::prelude::wasm_bindgen;
 
 use crate::{

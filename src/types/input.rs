@@ -1,7 +1,7 @@
 use std::ops::Deref;
 use wasm_bindgen::prelude::wasm_bindgen;
 
-use bitcoin::TxIn as BdkTxIn;
+use bdk_wallet::bitcoin::TxIn as BdkTxIn;
 
 use crate::types::{OutPoint, ScriptBuf};
 

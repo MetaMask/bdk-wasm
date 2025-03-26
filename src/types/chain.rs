@@ -1,13 +1,15 @@
 use std::ops::Deref;
 
-use bdk_core::{
-    spk_client::{
-        FullScanRequest as BdkFullScanRequest, FullScanResponse as BdkFullScanResponse, SyncRequest as BdkSyncRequest,
-        SyncResponse as BdkSyncResponse,
+use bdk_wallet::{
+    chain::{
+        spk_client::{
+            FullScanRequest as BdkFullScanRequest, FullScanResponse as BdkFullScanResponse,
+            SyncRequest as BdkSyncRequest, SyncResponse as BdkSyncResponse,
+        },
+        ChainPosition as BdkChainPosition, ConfirmationBlockTime as BdkConfirmationBlockTime,
     },
-    ConfirmationBlockTime as BdkConfirmationBlockTime,
+    KeychainKind, Update as BdkUpdate,
 };
-use bdk_wallet::{chain::ChainPosition as BdkChainPosition, KeychainKind, Update as BdkUpdate};
 use wasm_bindgen::prelude::wasm_bindgen;
 
 use super::{ConfirmationBlockTime, Txid};
@@ -70,7 +72,6 @@ impl From<FullScanRequest> for BdkFullScanRequest<KeychainKind> {
 
 /// An update to [`Wallet`].
 #[wasm_bindgen]
-#[derive(Debug)]
 pub struct Update(BdkUpdate);
 
 impl Deref for Update {

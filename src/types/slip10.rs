@@ -2,7 +2,7 @@ use serde::Deserialize;
 
 /// A wrapper for SLIP-10 Hierarchical Deterministic (HD) tree nodes, i.e.
 /// cryptographic keys used to generate key pairs and addresses for cryptocurrency protocols.
-#[derive(Debug, Deserialize)]
+#[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SLIP10Node {
     /// The 0-indexed path depth of this node.

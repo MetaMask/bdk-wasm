@@ -1,17 +1,17 @@
 use anyhow::{anyhow, Error};
 use bdk_wallet::{
+    bitcoin::{
+        bip32::{ChainCode, Fingerprint, Xpriv, Xpub},
+        hex::FromHex,
+        secp256k1::{PublicKey, SecretKey},
+        AddressType, Network,
+    },
     keys::{DerivableKey, ExtendedKey},
     template::{
         Bip44, Bip44Public, Bip49, Bip49Public, Bip84, Bip84Public, Bip86, Bip86Public, DescriptorTemplate,
         DescriptorTemplateOut,
     },
     KeychainKind,
-};
-use bitcoin::{
-    bip32::{ChainCode, Fingerprint, Xpriv, Xpub},
-    hex::FromHex,
-    secp256k1::{PublicKey, SecretKey},
-    AddressType, Network,
 };
 
 use crate::types::SLIP10Node;

@@ -1,17 +1,19 @@
 use std::str::FromStr;
 
-use bdk_wallet::keys::ExtendedKey;
-use bitcoin::bip32::{Fingerprint, Xpriv, Xpub};
+use bdk_wallet::{
+    bitcoin::bip32::{Fingerprint, Xpriv, Xpub},
+    keys::ExtendedKey,
+};
 use serde_wasm_bindgen::from_value;
+use wasm_bindgen::prelude::{wasm_bindgen, JsError, JsValue};
 
 use crate::types::{AddressType, Network, SLIP10Node};
-use wasm_bindgen::prelude::{wasm_bindgen, JsError, JsValue};
 
 use super::result::JsResult;
 
 /// Pair of descriptors for external and internal keychains
 #[wasm_bindgen]
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct DescriptorPair {
     /// External descriptor
     external: String,

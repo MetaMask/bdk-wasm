@@ -1,7 +1,7 @@
 use std::{ops::Deref, str::FromStr};
 use wasm_bindgen::prelude::wasm_bindgen;
 
-use bitcoin::{Transaction as BdkTransaction, Txid as BdkTxid};
+use bdk_wallet::bitcoin::{Transaction as BdkTransaction, Txid as BdkTxid};
 
 use crate::result::JsResult;
 

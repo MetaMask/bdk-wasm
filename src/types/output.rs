@@ -1,8 +1,9 @@
-use bdk_wallet::LocalOutput as BdkLocalOutput;
+use bdk_wallet::{
+    bitcoin::{OutPoint as BdkOutPoint, TxOut as BdkTxOut},
+    LocalOutput as BdkLocalOutput,
+};
 use std::{ops::Deref, str::FromStr};
 use wasm_bindgen::prelude::wasm_bindgen;
-
-use bitcoin::{OutPoint as BdkOutPoint, TxOut as BdkTxOut};
 
 use crate::{
     result::JsResult,
@@ -13,7 +14,7 @@ use super::Txid;
 
 /// A reference to a transaction output.
 #[wasm_bindgen]
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Clone, PartialEq, Eq)]
 pub struct OutPoint(BdkOutPoint);
 
 impl Deref for OutPoint {

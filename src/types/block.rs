@@ -1,11 +1,10 @@
 use std::ops::Deref;
 
-use bdk_core::{BlockId as BdkBlockId, ConfirmationBlockTime as BdkConfirmationBlockTime};
+use bdk_wallet::chain::{BlockId as BdkBlockId, ConfirmationBlockTime as BdkConfirmationBlockTime};
 use wasm_bindgen::prelude::wasm_bindgen;
 
 /// A reference to a block in the canonical chain.
 #[wasm_bindgen]
-#[derive(Debug)]
 pub struct BlockId(BdkBlockId);
 
 #[wasm_bindgen]

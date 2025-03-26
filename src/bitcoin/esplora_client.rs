@@ -1,9 +1,11 @@
-use bdk_core::spk_client::{FullScanRequest as BdkFullScanRequest, SyncRequest as BdkSyncRequest};
 use bdk_esplora::{
     esplora_client::{AsyncClient, Builder},
     EsploraAsyncExt,
 };
-use bdk_wallet::KeychainKind;
+use bdk_wallet::{
+    chain::spk_client::{FullScanRequest as BdkFullScanRequest, SyncRequest as BdkSyncRequest},
+    KeychainKind,
+};
 use wasm_bindgen::prelude::wasm_bindgen;
 
 use crate::{

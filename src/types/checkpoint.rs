@@ -1,6 +1,6 @@
 use std::ops::Deref;
 
-use bdk_core::CheckPoint as BdkCheckPoint;
+use bdk_wallet::chain::CheckPoint as BdkCheckPoint;
 use wasm_bindgen::prelude::wasm_bindgen;
 
 use super::BlockId;
@@ -10,7 +10,6 @@ use super::BlockId;
 /// Checkpoints are cheaply cloneable and are useful to find the agreement point between two sparse
 /// block chains.
 #[wasm_bindgen]
-#[derive(Debug)]
 pub struct CheckPoint(BdkCheckPoint);
 
 #[wasm_bindgen]
