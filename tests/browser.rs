@@ -9,7 +9,6 @@ use bitcoindevkit::{
     set_panic_hook,
     types::Network,
 };
-use js_sys::Date;
 use wasm_bindgen_test::*;
 
 wasm_bindgen_test_configure!(run_in_browser);
@@ -31,9 +30,7 @@ async fn test_browser() {
 
     let sync_request = wallet.start_sync_with_revealed_spks();
     let update = blockchain_client.sync(sync_request, 1).await.expect("sync");
-    wallet
-        .apply_update_at(update, (Date::now() / 1000.0) as u64)
-        .expect("sync apply_update");
+    wallet.apply_update(update).expect("sync apply_update");
 
     let sync_block_height = wallet.latest_checkpoint().height();
     assert!(sync_block_height > block_height);

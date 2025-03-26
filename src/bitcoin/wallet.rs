@@ -1,6 +1,7 @@
 use std::{cell::RefCell, rc::Rc};
 
 use bdk_wallet::{SignOptions, Wallet as BdkWallet};
+use js_sys::Date;
 use wasm_bindgen::{prelude::wasm_bindgen, JsError};
 
 use crate::{
@@ -62,6 +63,10 @@ impl Wallet {
 
     pub fn start_sync_with_revealed_spks(&self) -> SyncRequest {
         self.0.borrow().start_sync_with_revealed_spks().build().into()
+    }
+
+    pub fn apply_update(&self, update: Update) -> JsResult<()> {
+        self.apply_update_at(update, (Date::now() / 1000.0) as u64)
     }
 
     pub fn apply_update_at(&self, update: Update, seen_at: u64) -> JsResult<()> {
