@@ -1,4 +1,6 @@
+use bdk_wallet::serde_json::to_string;
 use std::ops::{Deref, DerefMut};
+use std::str::FromStr;
 
 use bdk_wallet::{
     bitcoin::{Amount as BdkAmount, Psbt as BdkPsbt, ScriptBuf as BdkScriptBuf},
@@ -54,6 +56,23 @@ impl Psbt {
     pub fn fee_rate(&self) -> Option<FeeRate> {
         let fee_rate = self.0.fee_rate();
         fee_rate.map(Into::into)
+    }
+
+    /// Serialize the PSBT to a string in base64 format
+    #[allow(clippy::inherent_to_string)]
+    #[wasm_bindgen(js_name = toString)]
+    pub fn to_string(&self) -> String {
+        self.0.to_string()
+    }
+
+    /// Create a PSBT from a base64 string
+    pub fn from_string(val: &str) -> JsResult<Psbt> {
+        Ok(Psbt(BdkPsbt::from_str(val)?))
+    }
+
+    /// Serialize `Psbt` to JSON.
+    pub fn to_json(&self) -> String {
+        to_string(&self.0).expect("Serialization should not fail")
     }
 }
 
