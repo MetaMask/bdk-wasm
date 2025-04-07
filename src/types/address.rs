@@ -128,6 +128,10 @@ impl ScriptBuf {
     pub fn to_string(&self) -> String {
         self.0.to_string()
     }
+
+    pub fn as_bytes(&self) -> Vec<u8> {
+        self.0.as_bytes().to_vec()
+    }
 }
 
 impl From<BdkScriptBuf> for ScriptBuf {
