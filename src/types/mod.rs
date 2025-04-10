@@ -11,7 +11,6 @@ mod keychain;
 mod network;
 mod output;
 mod psbt;
-mod slip10;
 mod transaction;
 
 pub use address::*;
@@ -27,5 +26,4 @@ pub use keychain::*;
 pub use network::*;
 pub use output::*;
 pub use psbt::*;
-pub use slip10::*;
 pub use transaction::*;
