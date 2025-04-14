@@ -6,6 +6,7 @@ import {
   Network,
   Recipient,
   Wallet,
+  SignOptions,
 } from "../../../pkg/bitcoindevkit";
 
 // Tests are expected to run in order
@@ -71,7 +72,7 @@ describe("Esplora client", () => {
 
     expect(psbt.fee().to_sat()).toBeGreaterThan(100); // We cannot know the exact fees
 
-    const finalized = wallet.sign(psbt);
+    const finalized = wallet.sign(psbt, new SignOptions());
     expect(finalized).toBeTruthy();
 
     const tx = psbt.extract_tx();
