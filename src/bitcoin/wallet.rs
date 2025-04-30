@@ -145,12 +145,7 @@ impl Wallet {
         self.0.borrow().public_descriptor(keychain.into()).to_string()
     }
 
-    pub fn sign(&self, psbt: &mut Psbt) -> JsResult<bool> {
-        let result = self.0.borrow().sign(psbt, BdkSignOptions::default())?;
-        Ok(result)
-    }
-
-    pub fn sign_with_options(&self, psbt: &mut Psbt, options: SignOptions) -> JsResult<bool> {
+    pub fn sign(&self, psbt: &mut Psbt, options: SignOptions) -> JsResult<bool> {
         let result = self.0.borrow().sign(psbt, options.into())?;
         Ok(result)
     }
@@ -191,107 +186,84 @@ impl Wallet {
 }
 
 #[wasm_bindgen]
-#[derive(Default)]
-pub struct SignOptions {
-    trust_witness_utxo: bool,
-    assume_height: Option<u32>,
-    allow_all_sighashes: bool,
-    try_finalize: bool,
-    sign_with_tap_internal_key: bool,
-    allow_grinding: bool,
-}
+pub struct SignOptions(BdkSignOptions);
 
 #[wasm_bindgen]
 impl SignOptions {
     #[wasm_bindgen(constructor)]
     pub fn new() -> Self {
-        BdkSignOptions::default().into()
+        SignOptions(BdkSignOptions::default())
     }
 
     #[wasm_bindgen(getter)]
     pub fn trust_witness_utxo(&self) -> bool {
-        self.trust_witness_utxo
+        self.0.trust_witness_utxo
     }
 
     #[wasm_bindgen(setter)]
     pub fn set_trust_witness_utxo(&mut self, value: bool) {
-        self.trust_witness_utxo = value;
+        self.0.trust_witness_utxo = value;
     }
 
     #[wasm_bindgen(getter)]
     pub fn assume_height(&self) -> Option<u32> {
-        self.assume_height
+        self.0.assume_height
     }
 
     #[wasm_bindgen(setter)]
     pub fn set_assume_height(&mut self, value: Option<u32>) {
-        self.assume_height = value;
+        self.0.assume_height = value;
     }
 
     #[wasm_bindgen(getter)]
     pub fn allow_all_sighashes(&self) -> bool {
-        self.allow_all_sighashes
+        self.0.allow_all_sighashes
     }
 
     #[wasm_bindgen(setter)]
     pub fn set_allow_all_sighashes(&mut self, value: bool) {
-        self.allow_all_sighashes = value;
+        self.0.allow_all_sighashes = value;
     }
 
     #[wasm_bindgen(getter)]
     pub fn try_finalize(&self) -> bool {
-        self.try_finalize
+        self.0.try_finalize
     }
 
     #[wasm_bindgen(setter)]
     pub fn set_try_finalize(&mut self, value: bool) {
-        self.try_finalize = value;
+        self.0.try_finalize = value;
     }
 
     #[wasm_bindgen(getter)]
     pub fn sign_with_tap_internal_key(&self) -> bool {
-        self.sign_with_tap_internal_key
+        self.0.sign_with_tap_internal_key
     }
 
     #[wasm_bindgen(setter)]
     pub fn set_sign_with_tap_internal_key(&mut self, value: bool) {
-        self.sign_with_tap_internal_key = value;
+        self.0.sign_with_tap_internal_key = value;
     }
 
     #[wasm_bindgen(getter)]
     pub fn allow_grinding(&self) -> bool {
-        self.allow_grinding
+        self.0.allow_grinding
     }
 
     #[wasm_bindgen(setter)]
     pub fn set_allow_grinding(&mut self, value: bool) {
-        self.allow_grinding = value;
+        self.0.allow_grinding = value;
     }
 }
 
 impl From<SignOptions> for BdkSignOptions {
     fn from(options: SignOptions) -> Self {
-        BdkSignOptions {
-            trust_witness_utxo: options.trust_witness_utxo,
-            assume_height: options.assume_height,
-            allow_all_sighashes: options.allow_all_sighashes,
-            try_finalize: options.try_finalize,
-            tap_leaves_options: bdk_wallet::signer::TapLeavesOptions::default(),
-            sign_with_tap_internal_key: options.sign_with_tap_internal_key,
-            allow_grinding: options.allow_grinding,
-        }
+        options.0
     }
 }
 
-impl From<BdkSignOptions> for SignOptions {
-    fn from(options: BdkSignOptions) -> Self {
-        Self {
-            trust_witness_utxo: options.trust_witness_utxo,
-            assume_height: options.assume_height,
-            allow_all_sighashes: options.allow_all_sighashes,
-            try_finalize: options.try_finalize,
-            sign_with_tap_internal_key: options.sign_with_tap_internal_key,
-            allow_grinding: options.allow_grinding,
-        }
+impl Default for SignOptions {
+    fn default() -> Self {
+        Self::new()
     }
 }
