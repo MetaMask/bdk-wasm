@@ -87,7 +87,7 @@ describe("Esplora client", () => {
 
     // Assert that the transaction is in the wallet
     wallet.apply_unconfirmed_txs([new UnconfirmedTx(tx, unixTimestamp)]);
-    const walletTx = wallet.get_tx(txid.clone());
+    const walletTx = wallet.get_tx(txid);
     expect(walletTx.last_seen_unconfirmed).toEqual(unixTimestamp);
     expect(walletTx.chain_position.is_confirmed).toBe(false);
   }, 30000);
