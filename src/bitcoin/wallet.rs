@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use bdk_wallet::{SignOptions, Wallet as BdkWallet};
+use bdk_wallet::{SignOptions as BdkSignOptions, Wallet as BdkWallet};
 use js_sys::Date;
 use wasm_bindgen::{prelude::wasm_bindgen, JsError};
 
@@ -145,8 +145,8 @@ impl Wallet {
         self.0.borrow().public_descriptor(keychain.into()).to_string()
     }
 
-    pub fn sign(&self, psbt: &mut Psbt) -> JsResult<bool> {
-        let result = self.0.borrow().sign(psbt, SignOptions::default())?;
+    pub fn sign(&self, psbt: &mut Psbt, options: SignOptions) -> JsResult<bool> {
+        let result = self.0.borrow().sign(psbt, options.into())?;
         Ok(result)
     }
 
@@ -182,5 +182,88 @@ impl Wallet {
             .borrow()
             .derivation_of_spk(spk.into())
             .map(|(keychain, index)| SpkIndexed(keychain.into(), index))
+    }
+}
+
+#[wasm_bindgen]
+pub struct SignOptions(BdkSignOptions);
+
+#[wasm_bindgen]
+impl SignOptions {
+    #[wasm_bindgen(constructor)]
+    pub fn new() -> Self {
+        SignOptions(BdkSignOptions::default())
+    }
+
+    #[wasm_bindgen(getter)]
+    pub fn trust_witness_utxo(&self) -> bool {
+        self.0.trust_witness_utxo
+    }
+
+    #[wasm_bindgen(setter)]
+    pub fn set_trust_witness_utxo(&mut self, value: bool) {
+        self.0.trust_witness_utxo = value;
+    }
+
+    #[wasm_bindgen(getter)]
+    pub fn assume_height(&self) -> Option<u32> {
+        self.0.assume_height
+    }
+
+    #[wasm_bindgen(setter)]
+    pub fn set_assume_height(&mut self, value: Option<u32>) {
+        self.0.assume_height = value;
+    }
+
+    #[wasm_bindgen(getter)]
+    pub fn allow_all_sighashes(&self) -> bool {
+        self.0.allow_all_sighashes
+    }
+
+    #[wasm_bindgen(setter)]
+    pub fn set_allow_all_sighashes(&mut self, value: bool) {
+        self.0.allow_all_sighashes = value;
+    }
+
+    #[wasm_bindgen(getter)]
+    pub fn try_finalize(&self) -> bool {
+        self.0.try_finalize
+    }
+
+    #[wasm_bindgen(setter)]
+    pub fn set_try_finalize(&mut self, value: bool) {
+        self.0.try_finalize = value;
+    }
+
+    #[wasm_bindgen(getter)]
+    pub fn sign_with_tap_internal_key(&self) -> bool {
+        self.0.sign_with_tap_internal_key
+    }
+
+    #[wasm_bindgen(setter)]
+    pub fn set_sign_with_tap_internal_key(&mut self, value: bool) {
+        self.0.sign_with_tap_internal_key = value;
+    }
+
+    #[wasm_bindgen(getter)]
+    pub fn allow_grinding(&self) -> bool {
+        self.0.allow_grinding
+    }
+
+    #[wasm_bindgen(setter)]
+    pub fn set_allow_grinding(&mut self, value: bool) {
+        self.0.allow_grinding = value;
+    }
+}
+
+impl From<SignOptions> for BdkSignOptions {
+    fn from(options: SignOptions) -> Self {
+        options.0
+    }
+}
+
+impl Default for SignOptions {
+    fn default() -> Self {
+        Self::new()
     }
 }
