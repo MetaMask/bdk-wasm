@@ -5,6 +5,7 @@ import {
   FeeRate,
   Network,
   Recipient,
+  UnconfirmedTx,
   Wallet,
   SignOptions,
 } from "../../../pkg/bitcoindevkit";
@@ -23,6 +24,7 @@ describe("Esplora client", () => {
     "tb1qd28npep0s8frcm3y7dxqajkcy2m40eysplyr9v",
     network
   );
+  const unixTimestamp = BigInt(Math.floor(Date.now() / 1000));
 
   let feeRate: FeeRate;
   let wallet: Wallet;
@@ -83,14 +85,10 @@ describe("Esplora client", () => {
     const currentDerivationIndex = wallet.derivation_index("internal");
     expect(initialDerivationIndex).toBeLessThan(currentDerivationIndex);
 
-    // Synchronizes the wallet to get the new state
-    const request = wallet.start_sync_with_revealed_spks();
-    const update = await esploraClient.sync(request, parallelRequests);
-    wallet.apply_update(update);
-
-    // Verify the sent transaction is part of the wallet in an unconfirmed state
+    // Assert that the transaction is in the wallet
+    wallet.apply_unconfirmed_txs([new UnconfirmedTx(tx, unixTimestamp)]);
     const walletTx = wallet.get_tx(txid);
-    expect(walletTx.last_seen_unconfirmed).toBeDefined();
+    expect(walletTx.last_seen_unconfirmed).toEqual(unixTimestamp);
     expect(walletTx.chain_position.is_confirmed).toBe(false);
   }, 30000);
 

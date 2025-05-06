@@ -1,4 +1,4 @@
-use std::collections::BTreeSet;
+use std::{collections::BTreeSet, sync::Arc};
 
 use bdk_wallet::{
     bitcoin::{Transaction as BdkTransaction, Txid as BdkTxid},
@@ -61,5 +61,34 @@ impl From<BdkWalletTx<'_>> for WalletTx {
             last_seen_unconfirmed: tx.tx_node.last_seen_unconfirmed,
             chain_position: tx.chain_position,
         }
+    }
+}
+
+#[wasm_bindgen]
+pub struct UnconfirmedTx(Transaction, pub u64);
+
+#[wasm_bindgen]
+impl UnconfirmedTx {
+    /// `tx` – your wrapped `Transaction`
+    /// `last_seen` – unix epoch seconds (same convention as the rest of the API)
+    #[wasm_bindgen(constructor)]
+    pub fn new(tx: Transaction, last_seen: u64) -> UnconfirmedTx {
+        UnconfirmedTx(tx, last_seen)
+    }
+
+    #[wasm_bindgen(getter)]
+    pub fn tx(&self) -> Transaction {
+        self.0.clone()
+    }
+
+    #[wasm_bindgen(getter)]
+    pub fn last_seen(&self) -> u64 {
+        self.1
+    }
+}
+
+impl From<UnconfirmedTx> for (Arc<BdkTransaction>, u64) {
+    fn from(uctx: UnconfirmedTx) -> Self {
+        (Arc::new(uctx.0.into()), uctx.1)
     }
 }

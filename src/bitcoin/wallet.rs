@@ -13,7 +13,7 @@ use crate::{
     },
 };
 
-use super::TxBuilder;
+use super::{TxBuilder, UnconfirmedTx};
 
 // We wrap a `BdkWallet` in `Rc<RefCell<...>>` because `wasm_bindgen` do not
 // support Rust's lifetimes. This allows us to forward a reference to the
@@ -182,6 +182,12 @@ impl Wallet {
             .borrow()
             .derivation_of_spk(spk.into())
             .map(|(keychain, index)| SpkIndexed(keychain.into(), index))
+    }
+
+    pub fn apply_unconfirmed_txs(&self, unconfirmed_txs: Vec<UnconfirmedTx>) {
+        self.0
+            .borrow_mut()
+            .apply_unconfirmed_txs(unconfirmed_txs.into_iter().map(Into::into))
     }
 }
 
