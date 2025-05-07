@@ -19,7 +19,7 @@ describe("Esplora client", () => {
   const internalDescriptor =
     "wpkh(tprv8ZgxMBicQKsPe2qpAuh1K1Hig72LCoP4JgNxZM2ZRWHZYnpuw5oHoGBsQm7Qb8mLgPpRJVn3hceWgGQRNbPD6x1pp2Qme2YFRAPeYh7vmvE/84'/1'/0'/1/*)#vwnfl2cc";
   const network: Network = "signet";
-  const esploraUrl = "https://mutinynet.com/api";
+  const esploraUrl = "https://mempool.space/signet/api/v1";
   const recipientAddress = Address.from_string(
     "tb1qd28npep0s8frcm3y7dxqajkcy2m40eysplyr9v",
     network
