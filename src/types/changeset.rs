@@ -5,8 +5,7 @@ use bdk_wallet::{
     serde_json::{from_str, to_string},
     ChangeSet as BdkChangeSet,
 };
-use serde_wasm_bindgen::{from_value, to_value};
-use wasm_bindgen::{prelude::wasm_bindgen, JsValue};
+use wasm_bindgen::prelude::wasm_bindgen;
 
 use crate::result::JsResult;
 
@@ -31,19 +30,9 @@ impl ChangeSet {
         to_string(&self.0).expect("Serialization should not fail")
     }
 
-    /// Serialize `ChangeSet` to JSON compatible with WASM.
-    pub fn to_js(&self) -> JsValue {
-        to_value(&self.0).expect("Serialization should not fail")
-    }
-
     /// Create a new `ChangeSet` from a JSON string.
     pub fn from_json(val: &str) -> JsResult<ChangeSet> {
         Ok(ChangeSet(from_str(val)?))
-    }
-
-    /// Create a new `ChangeSet` from a JS object.
-    pub fn from_js(js_value: JsValue) -> JsResult<ChangeSet> {
-        Ok(ChangeSet(from_value(js_value)?))
     }
 }
 

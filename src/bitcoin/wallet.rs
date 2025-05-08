@@ -1,8 +1,8 @@
 use std::{cell::RefCell, rc::Rc};
 
 use bdk_wallet::{SignOptions as BdkSignOptions, Wallet as BdkWallet};
-use js_sys::Date;
 use wasm_bindgen::{prelude::wasm_bindgen, JsError};
+use web_sys::js_sys::Date;
 
 use crate::{
     bitcoin::WalletTx,
