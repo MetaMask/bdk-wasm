@@ -229,7 +229,7 @@ dependencies = [
 
 [[package]]
 name = "bitcoindevkit"
-version = "0.1.7"
+version = "0.1.8"
 dependencies = [
  "anyhow",
  "bdk_esplora",
