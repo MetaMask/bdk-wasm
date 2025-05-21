@@ -33,7 +33,7 @@ impl EsploraClient {
     }
 
     pub async fn full_scan(
-        &mut self,
+        &self,
         request: FullScanRequest,
         stop_gap: usize,
         parallel_requests: usize,
@@ -43,7 +43,7 @@ impl EsploraClient {
         Ok(result.into())
     }
 
-    pub async fn sync(&mut self, request: SyncRequest, parallel_requests: usize) -> JsResult<Update> {
+    pub async fn sync(&self, request: SyncRequest, parallel_requests: usize) -> JsResult<Update> {
         let request: BdkSyncRequest<(KeychainKind, u32)> = request.into();
         let result = self.client.sync(request, parallel_requests).await?;
         Ok(result.into())
