@@ -1,6 +1,6 @@
 [package]
 name = "bitcoindevkit"
-version = "0.1.8"
+version = "0.1.9"
 repository = "https://github.com/MetaMask/bdk-wasm"
 description = "A modern, lightweight, descriptor-based wallet library in WebAssembly for browsers and Node"
 keywords = [
