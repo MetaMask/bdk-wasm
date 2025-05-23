@@ -9,7 +9,8 @@ use crate::{
     result::JsResult,
     types::{
         AddressInfo, Amount, Balance, ChangeSet, CheckPoint, FeeRate, FullScanRequest, KeychainKind, LocalOutput,
-        Network, OutPoint, Psbt, ScriptBuf, SentAndReceived, SpkIndexed, SyncRequest, Transaction, Txid, Update,
+        Network, NetworkKind, OutPoint, Psbt, ScriptBuf, SentAndReceived, SpkIndexed, SyncRequest, Transaction, Txid,
+        Update,
     },
 };
 
@@ -76,6 +77,11 @@ impl Wallet {
 
     #[wasm_bindgen(getter)]
     pub fn network(&self) -> Network {
+        self.0.borrow().network().into()
+    }
+
+    #[wasm_bindgen(getter)]
+    pub fn network_kind(&self) -> NetworkKind {
         self.0.borrow().network().into()
     }
 

@@ -1,5 +1,42 @@
-use bdk_wallet::bitcoin::{Network as BdkNetwork, NetworkKind};
+use bdk_wallet::bitcoin::{Network as BdkNetwork, NetworkKind as BdkNetworkKind};
 use wasm_bindgen::prelude::wasm_bindgen;
+
+/// What kind of network we are on.
+#[wasm_bindgen]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub enum NetworkKind {
+    /// The Bitcoin mainnet network.
+    Main,
+    /// Some kind of testnet network.
+    Test,
+}
+
+impl From<BdkNetworkKind> for NetworkKind {
+    fn from(network_kind: BdkNetworkKind) -> Self {
+        match network_kind {
+            BdkNetworkKind::Main => NetworkKind::Main,
+            _ => NetworkKind::Test,
+        }
+    }
+}
+
+impl From<NetworkKind> for BdkNetworkKind {
+    fn from(network_kind: NetworkKind) -> Self {
+        match network_kind {
+            NetworkKind::Main => BdkNetworkKind::Main,
+            _ => BdkNetworkKind::Test,
+        }
+    }
+}
+
+impl From<BdkNetwork> for NetworkKind {
+    fn from(network: BdkNetwork) -> Self {
+        match network {
+            BdkNetwork::Bitcoin => NetworkKind::Main,
+            _ => NetworkKind::Test,
+        }
+    }
+}
 
 /// The cryptocurrency network to act on.
 #[wasm_bindgen]
@@ -42,11 +79,11 @@ impl From<Network> for BdkNetwork {
     }
 }
 
-impl From<Network> for NetworkKind {
+impl From<Network> for BdkNetworkKind {
     fn from(network: Network) -> Self {
         match network {
-            Network::Bitcoin => NetworkKind::Main,
-            _ => NetworkKind::Test,
+            Network::Bitcoin => BdkNetworkKind::Main,
+            _ => BdkNetworkKind::Test,
         }
     }
 }
