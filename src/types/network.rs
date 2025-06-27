@@ -6,9 +6,9 @@ use wasm_bindgen::prelude::wasm_bindgen;
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum NetworkKind {
     /// The Bitcoin mainnet network.
-    Main,
+    Main = "main",
     /// Some kind of testnet network.
-    Test,
+    Test = "test",
 }
 
 impl From<BdkNetworkKind> for NetworkKind {

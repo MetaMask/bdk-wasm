@@ -3,7 +3,7 @@
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
     "build": "wasm-pack build --target nodejs --all-features",
-    "test": "yarn build && jest"
+    "test": "jest"
   },
   "devDependencies": {
     "@types/jest": "^29.5.14",
