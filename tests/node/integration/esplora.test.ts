@@ -10,7 +10,6 @@ import {
   SignOptions,
   BdkError,
   BdkErrorCode,
-  InsufficientFunds,
 } from "../../../pkg/bitcoindevkit";
 
 // Tests are expected to run in order
