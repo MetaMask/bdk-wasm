@@ -25,7 +25,7 @@ jobs:
       - name: Install wasm-pack
         run: curl https://raw.githubusercontent.com/rustwasm/wasm-pack/a3a48401795cd4b3afe1d74568c93675a04f3970/installer/init.sh -sSf | sh -s -- -f
       - name: Rust Cache
-        uses: Swatinem/rust-cache@82a92a6e8fbeee089604da2575dc567ae9ddeaab
+        uses: Swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3
       - name: Build
         run: |
           if [ "${{ matrix.features }}" = "all" ]; then
@@ -73,7 +73,7 @@ jobs:
         with:
           components: rustfmt, clippy
       - name: Rust Cache
-        uses: Swatinem/rust-cache@82a92a6e8fbeee089604da2575dc567ae9ddeaab
+        uses: Swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3
       - name: Check formatting
         run: cargo fmt --all -- --config format_code_in_doc_comments=true --check
       - name: Run Clippy
