@@ -4,9 +4,13 @@ use bdk_wallet::{
     bitcoin::{Address as BdkAddress, AddressType as BdkAddressType, Network as BdkNetwork, ScriptBuf as BdkScriptBuf},
     AddressInfo as BdkAddressInfo,
 };
+use bitcoin::address::ParseError;
 use wasm_bindgen::prelude::wasm_bindgen;
 
-use crate::result::JsResult;
+use crate::{
+    result::JsResult,
+    types::{BdkError, BdkErrorCode},
+};
 
 use super::{KeychainKind, Network};
 
@@ -75,7 +79,7 @@ impl Deref for Address {
 
 #[wasm_bindgen]
 impl Address {
-    pub fn from_string(address_str: &str, network: Network) -> JsResult<Self> {
+    pub fn from_string(address_str: &str, network: Network) -> Result<Self, BdkError> {
         let address = BdkAddress::from_str(address_str)?.require_network(network.into())?;
         Ok(Address(address))
     }
@@ -103,6 +107,24 @@ impl From<BdkAddress> for Address {
 impl From<Address> for BdkAddress {
     fn from(address: Address) -> Self {
         address.0
+    }
+}
+
+impl From<ParseError> for BdkError {
+    fn from(e: ParseError) -> Self {
+        use ParseError::*;
+        match &e {
+            Base58(_) => BdkError::new(BdkErrorCode::Base58, e.to_string(), ()),
+            Bech32(_) => BdkError::new(BdkErrorCode::Bech32, e.to_string(), ()),
+            WitnessVersion(_) => BdkError::new(BdkErrorCode::WitnessVersion, e.to_string(), ()),
+            WitnessProgram(_) => BdkError::new(BdkErrorCode::WitnessProgram, e.to_string(), ()),
+            UnknownHrp(_) => BdkError::new(BdkErrorCode::UnknownHrp, e.to_string(), ()),
+            LegacyAddressTooLong(_) => BdkError::new(BdkErrorCode::LegacyAddressTooLong, e.to_string(), ()),
+            InvalidBase58PayloadLength(_) => BdkError::new(BdkErrorCode::InvalidBase58PayloadLength, e.to_string(), ()),
+            InvalidLegacyPrefix(_) => BdkError::new(BdkErrorCode::InvalidLegacyPrefix, e.to_string(), ()),
+            NetworkValidation(_) => BdkError::new(BdkErrorCode::NetworkValidation, e.to_string(), ()),
+            _ => BdkError::new(BdkErrorCode::Unexpected, e.to_string(), ()),
+        }
     }
 }
 

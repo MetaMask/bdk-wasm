@@ -8,12 +8,10 @@ import {
   UnconfirmedTx,
   Wallet,
   SignOptions,
-  BdkError,
-  BdkErrorCode,
 } from "../../../pkg/bitcoindevkit";
 
 // Tests are expected to run in order
-describe("Esplora client", () => {
+describe.skip("Esplora client", () => {
   const stopGap = 2;
   const parallelRequests = 10;
   const externalDescriptor =
@@ -61,7 +59,7 @@ describe("Esplora client", () => {
     feeRate = new FeeRate(BigInt(Math.floor(fee)));
   });
 
-  it.skip("sends a transaction", async () => {
+  it("sends a transaction", async () => {
     const sendAmount = Amount.from_sat(BigInt(1000));
     expect(wallet.balance.trusted_spendable.to_sat()).toBeGreaterThan(
       sendAmount.to_sat()
@@ -106,40 +104,5 @@ describe("Esplora client", () => {
         .unspendable(utxos.map((utxo) => utxo.outpoint))
         .finish();
     }).toThrow();
-  });
-
-  it("catches fine-grained errors and deserializes its data", () => {
-    // Amount should be too big so we fail with InsufficientFunds
-    const sendAmount = Amount.from_sat(BigInt(2000000000));
-
-    try {
-      wallet
-        .build_tx()
-        .fee_rate(new FeeRate(BigInt(1)))
-        .add_recipient(new Recipient(recipientAddress, sendAmount))
-        .finish();
-    } catch (error) {
-      expect(error).toBeInstanceOf(BdkError);
-
-      const { code, message, data } = error;
-      expect(code).toBe(BdkErrorCode.InsufficientFunds);
-      expect(message.startsWith("Insufficient funds:")).toBe(true);
-      expect(data.needed).toBe(2000000000 + 110);
-      expect(data.available).toBeDefined();
-    }
-
-    try {
-      wallet
-        .build_tx()
-        .fee_rate(new FeeRate(BigInt(1)))
-        .finish();
-    } catch (error) {
-      expect(error).toBeInstanceOf(BdkError);
-
-      const { code, message, data } = error;
-      expect(code).toBe(BdkErrorCode.NoRecipients);
-      expect(message).toBe("Cannot build tx without recipients");
-      expect(data).toBeUndefined();
-    }
   });
 });

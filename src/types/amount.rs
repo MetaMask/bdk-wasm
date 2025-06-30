@@ -1,10 +1,11 @@
 use std::ops::Deref;
 
 use bdk_wallet::bitcoin::{Amount as BdkAmount, Denomination as BdkDenomination};
+use bitcoin::amount::ParseAmountError;
 use serde::Serialize;
 use wasm_bindgen::prelude::wasm_bindgen;
 
-use crate::result::JsResult;
+use crate::types::{BdkError, BdkErrorCode};
 
 /// Amount
 ///
@@ -16,7 +17,7 @@ pub struct Amount(BdkAmount);
 
 #[wasm_bindgen]
 impl Amount {
-    pub fn from_btc(btc: f64) -> JsResult<Self> {
+    pub fn from_btc(btc: f64) -> Result<Self, BdkError> {
         let amount = BdkAmount::from_btc(btc)?;
         Ok(Amount(amount))
     }
@@ -62,6 +63,20 @@ impl From<BdkAmount> for Amount {
 impl From<Amount> for BdkAmount {
     fn from(amount: Amount) -> Self {
         amount.0
+    }
+}
+
+impl From<ParseAmountError> for BdkError {
+    fn from(e: ParseAmountError) -> Self {
+        use ParseAmountError::*;
+        match &e {
+            OutOfRange(_) => BdkError::new(BdkErrorCode::OutOfRange, e.to_string(), ()),
+            TooPrecise(_) => BdkError::new(BdkErrorCode::TooPrecise, e.to_string(), ()),
+            MissingDigits(_) => BdkError::new(BdkErrorCode::MissingDigits, e.to_string(), ()),
+            InputTooLarge(_) => BdkError::new(BdkErrorCode::InputTooLarge, e.to_string(), ()),
+            InvalidCharacter(_) => BdkError::new(BdkErrorCode::InvalidCharacter, e.to_string(), ()),
+            _ => BdkError::new(BdkErrorCode::Unexpected, e.to_string(), ()),
+        }
     }
 }
 

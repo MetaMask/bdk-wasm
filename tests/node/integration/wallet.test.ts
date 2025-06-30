@@ -1,4 +1,12 @@
-import { Wallet } from "../../../pkg/bitcoindevkit";
+import {
+  Address,
+  Amount,
+  BdkError,
+  BdkErrorCode,
+  FeeRate,
+  Recipient,
+  Wallet,
+} from "../../../pkg/bitcoindevkit";
 import type { Network } from "../../../pkg/bitcoindevkit";
 
 describe("Wallet", () => {
@@ -8,6 +16,10 @@ describe("Wallet", () => {
   const internalDesc =
     "wpkh(tprv8ZgxMBicQKsPf6vydw7ixvsLKY79hmeXujBkGCNCApyft92yVYng2y28JpFZcneBYTTHycWSRpokhHE25GfHPBxnW5GpSm2dMWzEi9xxEyU/84'/1'/0'/1/*)#dd6w3a4e";
   let wallet: Wallet;
+  const recipientAddress = Address.from_string(
+    "tb1qd28npep0s8frcm3y7dxqajkcy2m40eysplyr9v",
+    network
+  );
 
   it("creates a new wallet from descriptors", () => {
     wallet = Wallet.create(network, externalDesc, internalDesc);
@@ -41,5 +53,67 @@ describe("Wallet", () => {
     expect(
       loadedWallet.next_unused_address("external").address.toString()
     ).toBe("tb1qjtgffm20l9vu6a7gacxvpu2ej4kdcsgc26xfdz");
+  });
+
+  it("catches fine-grained errors and deserializes its data", () => {
+    // Amount should be too big so we fail with InsufficientFunds
+    const sendAmount = Amount.from_sat(BigInt(2000000000));
+
+    try {
+      wallet
+        .build_tx()
+        .fee_rate(new FeeRate(BigInt(1)))
+        .add_recipient(new Recipient(recipientAddress, sendAmount))
+        .finish();
+    } catch (error) {
+      expect(error).toBeInstanceOf(BdkError);
+
+      const { code, message, data } = error;
+      expect(code).toBe(BdkErrorCode.InsufficientFunds);
+      expect(message.startsWith("Insufficient funds:")).toBe(true);
+      expect(data.needed).toBe(2000000000 + 110);
+      expect(data.available).toBeDefined();
+    }
+
+    try {
+      wallet
+        .build_tx()
+        .fee_rate(new FeeRate(BigInt(1)))
+        .finish();
+    } catch (error) {
+      expect(error).toBeInstanceOf(BdkError);
+
+      const { code, message, data } = error;
+      expect(code).toBe(BdkErrorCode.NoRecipients);
+      expect(message).toBe("Cannot build tx without recipients");
+      expect(data).toBeUndefined();
+    }
+  });
+
+  it("catches fine-grained address errors", () => {
+    try {
+      Address.from_string(
+        "tb1qd28npep0s8frcm3y7dxqajkcy2m40eysplyr9v",
+        "bitcoin"
+      );
+    } catch (error) {
+      expect(error).toBeInstanceOf(BdkError);
+
+      const { code, message, data } = error;
+      expect(code).toBe(BdkErrorCode.NetworkValidation);
+      expect(message.startsWith("Insufficient funds:")).toBe(true);
+      expect(data).toBeDefined();
+    }
+
+    try {
+      Address.from_string("notAnAddress", network);
+    } catch (error) {
+      expect(error).toBeInstanceOf(BdkError);
+
+      const { code, message, data } = error;
+      expect(code).toBe(BdkErrorCode.Base58);
+      expect(message.startsWith("Insufficient funds:")).toBe(true);
+      expect(data).toBeDefined();
+    }
   });
 });

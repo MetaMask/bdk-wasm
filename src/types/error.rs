@@ -43,6 +43,8 @@ impl BdkError {
 #[wasm_bindgen]
 #[derive(Clone, Copy)]
 pub enum BdkErrorCode {
+    /// ------- Transaction creation errors -------
+
     /// There was a problem with the descriptors passed in
     Descriptor,
     /// There was a problem while extracting and manipulating policies
@@ -83,4 +85,42 @@ pub enum BdkErrorCode {
     MissingNonWitnessUtxo,
     /// Miniscript PSBT error
     MiniscriptPsbt,
+
+    /// ------- Address errors -------
+
+    /// Base58 error.
+    Base58,
+    /// Bech32 segwit decoding error.
+    Bech32,
+    /// A witness version conversion/parsing error.
+    WitnessVersion,
+    /// A witness program error.
+    WitnessProgram,
+    /// Tried to parse an unknown HRP.
+    UnknownHrp,
+    /// Legacy address is too long.
+    LegacyAddressTooLong,
+    /// Invalid base58 payload data length for legacy address.
+    InvalidBase58PayloadLength,
+    /// Invalid legacy address prefix in base58 data payload.
+    InvalidLegacyPrefix,
+    /// Address's network differs from required one.
+    NetworkValidation,
+
+    /// ------- Amount errors -------
+
+    /// The amount is too big or too small.
+    OutOfRange,
+    /// Amount has higher precision than supported by the type.
+    TooPrecise,
+    /// A digit was expected but not found.
+    MissingDigits,
+    /// Input string was too large.
+    InputTooLarge,
+    /// Invalid character in input.
+    InvalidCharacter,
+
+    /// ------- Other errors -------
+    /// Unexpected error, should never happen
+    Unexpected,
 }
