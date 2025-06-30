@@ -11,7 +11,7 @@ import {
 } from "../../../pkg/bitcoindevkit";
 
 // Tests are expected to run in order
-describe.skip("Esplora client", () => {
+describe("Esplora client", () => {
   const stopGap = 2;
   const parallelRequests = 10;
   const externalDescriptor =

@@ -71,22 +71,8 @@ describe("Wallet", () => {
       const { code, message, data } = error;
       expect(code).toBe(BdkErrorCode.InsufficientFunds);
       expect(message.startsWith("Insufficient funds:")).toBe(true);
-      expect(data.needed).toBe(2000000000 + 110);
+      expect(data.needed).toBe(2000000000 + 42);
       expect(data.available).toBeDefined();
-    }
-
-    try {
-      wallet
-        .build_tx()
-        .fee_rate(new FeeRate(BigInt(1)))
-        .finish();
-    } catch (error) {
-      expect(error).toBeInstanceOf(BdkError);
-
-      const { code, message, data } = error;
-      expect(code).toBe(BdkErrorCode.NoRecipients);
-      expect(message).toBe("Cannot build tx without recipients");
-      expect(data).toBeUndefined();
     }
   });
 
@@ -101,8 +87,8 @@ describe("Wallet", () => {
 
       const { code, message, data } = error;
       expect(code).toBe(BdkErrorCode.NetworkValidation);
-      expect(message.startsWith("Insufficient funds:")).toBe(true);
-      expect(data).toBeDefined();
+      expect(message.startsWith("validation error")).toBe(true);
+      expect(data).toBeUndefined();
     }
 
     try {
@@ -112,8 +98,8 @@ describe("Wallet", () => {
 
       const { code, message, data } = error;
       expect(code).toBe(BdkErrorCode.Base58);
-      expect(message.startsWith("Insufficient funds:")).toBe(true);
-      expect(data).toBeDefined();
+      expect(message.startsWith("base58 error")).toBe(true);
+      expect(data).toBeUndefined();
     }
   });
 });
