@@ -102,4 +102,17 @@ describe("Wallet", () => {
       expect(data).toBeUndefined();
     }
   });
+
+  it("catches fine-grained amount errors", () => {
+    try {
+      Amount.from_btc(-100000000);
+    } catch (error) {
+      expect(error).toBeInstanceOf(BdkError);
+
+      const { code, message, data } = error;
+      expect(code).toBe(BdkErrorCode.OutOfRange);
+      expect(message.startsWith("amount out of range")).toBe(true);
+      expect(data).toBeUndefined();
+    }
+  });
 });
