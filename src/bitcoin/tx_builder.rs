@@ -1,12 +1,10 @@
 use std::{cell::RefCell, rc::Rc};
 
-use bdk_wallet::{bitcoin::ScriptBuf, Wallet as BdkWallet};
+use bdk_wallet::{bitcoin::ScriptBuf, error::CreateTxError, Wallet as BdkWallet};
+use serde::Serialize;
 use wasm_bindgen::prelude::wasm_bindgen;
 
-use crate::{
-    result::JsResult,
-    types::{Address, FeeRate, OutPoint, Psbt, Recipient},
-};
+use crate::types::{Address, Amount, BdkError, BdkErrorCode, FeeRate, OutPoint, Psbt, Recipient};
 
 /// A transaction builder.
 ///
@@ -113,7 +111,7 @@ impl TxBuilder {
     /// Finish building the transaction.
     ///
     /// Returns a new [`Psbt`] per [`BIP174`].
-    pub fn finish(self) -> JsResult<Psbt> {
+    pub fn finish(self) -> Result<Psbt, BdkError> {
         let mut wallet = self.wallet.borrow_mut();
         let mut builder = wallet.build_tx();
 
@@ -133,5 +131,52 @@ impl TxBuilder {
 
         let psbt = builder.finish()?;
         Ok(psbt.into())
+    }
+}
+
+/// Wallet's UTXO set is not enough to cover recipient's requested plus fee.
+#[wasm_bindgen]
+#[derive(Clone, Serialize)]
+pub struct InsufficientFunds {
+    /// Amount needed for the transaction
+    pub needed: Amount,
+    /// Amount available for spending
+    pub available: Amount,
+}
+
+impl From<CreateTxError> for BdkError {
+    fn from(e: CreateTxError) -> Self {
+        use CreateTxError::*;
+        match &e {
+            Descriptor(_) => BdkError::new(BdkErrorCode::Descriptor, e.to_string(), ()),
+            Policy(_) => BdkError::new(BdkErrorCode::Policy, e.to_string(), ()),
+            SpendingPolicyRequired(keychain_kind) => {
+                BdkError::new(BdkErrorCode::SpendingPolicyRequired, e.to_string(), keychain_kind)
+            }
+            Version0 => BdkError::new(BdkErrorCode::Version0, e.to_string(), ()),
+            Version1Csv => BdkError::new(BdkErrorCode::Version1Csv, e.to_string(), ()),
+            LockTime { .. } => BdkError::new(BdkErrorCode::LockTime, e.to_string(), ()),
+            RbfSequenceCsv { .. } => BdkError::new(BdkErrorCode::RbfSequenceCsv, e.to_string(), ()),
+            FeeTooLow { required } => BdkError::new(BdkErrorCode::FeeTooLow, e.to_string(), required),
+            FeeRateTooLow { required } => BdkError::new(BdkErrorCode::FeeRateTooLow, e.to_string(), required),
+            NoUtxosSelected => BdkError::new(BdkErrorCode::NoUtxosSelected, e.to_string(), ()),
+            OutputBelowDustLimit(limit) => BdkError::new(BdkErrorCode::OutputBelowDustLimit, e.to_string(), limit),
+            CoinSelection(insufficient_funds) => BdkError::new(
+                BdkErrorCode::InsufficientFunds,
+                e.to_string(),
+                InsufficientFunds {
+                    available: insufficient_funds.available.into(),
+                    needed: insufficient_funds.needed.into(),
+                },
+            ),
+            NoRecipients => BdkError::new(BdkErrorCode::NoRecipients, e.to_string(), ()),
+            Psbt(_) => BdkError::new(BdkErrorCode::Psbt, e.to_string(), ()),
+            MissingKeyOrigin(_) => BdkError::new(BdkErrorCode::MissingKeyOrigin, e.to_string(), ()),
+            UnknownUtxo => BdkError::new(BdkErrorCode::UnknownUtxo, e.to_string(), ()),
+            MissingNonWitnessUtxo(outpoint) => {
+                BdkError::new(BdkErrorCode::MissingNonWitnessUtxo, e.to_string(), outpoint)
+            }
+            MiniscriptPsbt(_) => BdkError::new(BdkErrorCode::MiniscriptPsbt, e.to_string(), ()),
+        }
     }
 }
