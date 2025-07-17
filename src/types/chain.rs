@@ -139,7 +139,24 @@ impl ChainPosition {
     #[wasm_bindgen(getter)]
     pub fn last_seen(&self) -> Option<u64> {
         match &self.0 {
-            BdkChainPosition::Unconfirmed { last_seen } => *last_seen,
+            BdkChainPosition::Unconfirmed {
+                first_seen: _,
+                last_seen,
+            } => *last_seen,
+            _ => None,
+        }
+    }
+
+    /// When the chain data was first seen in the mempool.
+    ///
+    /// This value will be `None` if the chain data was never seen in the mempool.
+    #[wasm_bindgen(getter)]
+    pub fn first_seen(&self) -> Option<u64> {
+        match &self.0 {
+            BdkChainPosition::Unconfirmed {
+                first_seen,
+                last_seen: _,
+            } => *first_seen,
             _ => None,
         }
     }

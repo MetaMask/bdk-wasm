@@ -15,7 +15,8 @@ pub struct WalletTx {
     txid: BdkTxid,
     tx: BdkTransaction,
     anchors: BTreeSet<BdkConfirmationBlockTime>,
-    last_seen_unconfirmed: Option<u64>,
+    last_seen: Option<u64>,
+    first_seen: Option<u64>,
     chain_position: BdkChainPosition<BdkConfirmationBlockTime>,
 }
 
@@ -41,8 +42,14 @@ impl WalletTx {
 
     /// The last-seen unix timestamp of the transaction as unconfirmed.
     #[wasm_bindgen(getter)]
-    pub fn last_seen_unconfirmed(&self) -> Option<u64> {
-        self.last_seen_unconfirmed
+    pub fn last_seen(&self) -> Option<u64> {
+        self.last_seen
+    }
+
+    /// The first-seen unix timestamp of the transaction as unconfirmed.
+    #[wasm_bindgen(getter)]
+    pub fn first_seen(&self) -> Option<u64> {
+        self.first_seen
     }
 
     /// How the transaction is observed in the canonical chain (confirmed or unconfirmed).
@@ -58,7 +65,8 @@ impl From<BdkWalletTx<'_>> for WalletTx {
             txid: tx.tx_node.txid,
             tx: tx.tx_node.tx.as_ref().clone(),
             anchors: tx.tx_node.anchors.clone(),
-            last_seen_unconfirmed: tx.tx_node.last_seen_unconfirmed,
+            last_seen: tx.tx_node.last_seen,
+            first_seen: tx.tx_node.first_seen,
             chain_position: tx.chain_position,
         }
     }

@@ -2,7 +2,6 @@ use std::{cell::RefCell, rc::Rc};
 
 use bdk_wallet::{SignOptions as BdkSignOptions, Wallet as BdkWallet};
 use wasm_bindgen::{prelude::wasm_bindgen, JsError};
-use web_sys::js_sys::Date;
 
 use crate::{
     bitcoin::WalletTx,
@@ -67,11 +66,7 @@ impl Wallet {
     }
 
     pub fn apply_update(&self, update: Update) -> JsResult<()> {
-        self.apply_update_at(update, (Date::now() / 1000.0) as u64)
-    }
-
-    pub fn apply_update_at(&self, update: Update, seen_at: u64) -> JsResult<()> {
-        self.0.borrow_mut().apply_update_at(update, seen_at)?;
+        self.0.borrow_mut().apply_update(update)?;
         Ok(())
     }
 
