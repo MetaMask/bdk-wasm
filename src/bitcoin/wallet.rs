@@ -2,6 +2,7 @@ use std::{cell::RefCell, rc::Rc};
 
 use bdk_wallet::{SignOptions as BdkSignOptions, Wallet as BdkWallet};
 use wasm_bindgen::{prelude::wasm_bindgen, JsError};
+use web_sys::js_sys::Date;
 
 use crate::{
     bitcoin::WalletTx,
@@ -58,11 +59,19 @@ impl Wallet {
     }
 
     pub fn start_full_scan(&self) -> FullScanRequest {
-        self.0.borrow().start_full_scan().build().into()
+        self.0
+            .borrow()
+            .start_full_scan_at((Date::now() / 1000.0) as u64)
+            .build()
+            .into()
     }
 
     pub fn start_sync_with_revealed_spks(&self) -> SyncRequest {
-        self.0.borrow().start_sync_with_revealed_spks().build().into()
+        self.0
+            .borrow()
+            .start_sync_with_revealed_spks_at((Date::now() / 1000.0) as u64)
+            .build()
+            .into()
     }
 
     pub fn apply_update(&self, update: Update) -> JsResult<()> {
