@@ -8,7 +8,7 @@
   </p>
 
   <p>
-    <a href="https://www.npmjs.com/package/@metamask/bitcoindevkit"><img alt="NPM Package" src="https://img.shields.io/npm/v/bitcoindevkit.svg"/></a>
+    <a href="https://www.npmjs.com/package/@metamask/bitcoindevkit"><img alt="NPM Package" src="https://img.shields.io/npm/v/@metamask/bitcoindevkit.svg"/></a>
     <a href="https://github.com/MetaMask/bdk-wasm/blob/master/LICENSE"><img alt="MIT or Apache-2.0 Licensed" src="https://img.shields.io/badge/license-MIT%2FApache--2.0-blue.svg"/></a>
     <a href="https://blog.rust-lang.org/2023/10/05/Rust-1.73.0.html"><img alt="Rustc Version 1.73.0+" src="https://img.shields.io/badge/rustc-1.73.0%2B-lightgrey.svg"/></a>
     <a href="https://discord.gg/d7NkDKm"><img alt="Chat on Discord" src="https://img.shields.io/discord/753336465005608961?logo=discord"></a>
