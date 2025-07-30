@@ -8,10 +8,10 @@ use bdk_wallet::{
 };
 use wasm_bindgen::{
     prelude::{wasm_bindgen, Closure},
-    JsCast, JsValue,
+    JsCast, JsError, JsValue,
 };
 use wasm_bindgen_futures::JsFuture;
-use web_sys::js_sys::{Function, Promise};
+use web_sys::js_sys::{global, Function, Promise, Reflect};
 
 use crate::{
     result::JsResult,
@@ -94,14 +94,19 @@ impl Sleeper for WasmSleeper {
     type Sleep = WasmSleep;
 
     fn sleep(dur: Duration) -> Self::Sleep {
-        let ms = dur.as_millis() as i32;
+        let ms = dur.as_millis();
         let promise = Promise::new(&mut |resolve, _reject| {
-            let cb = Closure::once_into_js(move || resolve.call0(&JsValue::NULL).unwrap());
-            web_sys::window()
-                .unwrap()
-                .set_timeout_with_callback_and_timeout_and_arguments_0(cb.unchecked_ref::<Function>(), ms)
-                .unwrap();
+            let cb = Closure::once_into_js(move || resolve.call0(&JsValue::NULL).unwrap()).unchecked_into::<Function>();
+
+            // globalThis.setTimeout(cb, ms);
+            let g = global();
+            let set_timeout = Reflect::get(&g, &JsValue::from_str("setTimeout"))
+                .unwrap_or_else(|_| JsError::new("setTimeout not found").into())
+                .unchecked_into::<Function>();
+
+            set_timeout.call2(&g, &cb, &JsValue::from_f64(ms as f64)).unwrap();
         });
+
         WasmSleep(JsFuture::from(promise))
     }
 }
