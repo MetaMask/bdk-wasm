@@ -8,10 +8,10 @@ use bdk_wallet::{
 };
 use wasm_bindgen::{
     prelude::{wasm_bindgen, Closure},
-    JsCast, JsError, JsValue,
+    JsCast, JsValue,
 };
 use wasm_bindgen_futures::JsFuture;
-use web_sys::js_sys::{global, Function, Promise, Reflect};
+use web_sys::js_sys::{Function, Promise};
 
 use crate::{
     result::JsResult,
@@ -28,7 +28,7 @@ use bdk_esplora::esplora_client::Sleeper;
 
 #[wasm_bindgen]
 pub struct EsploraClient {
-    client: AsyncClient<WasmSleeper>,
+    client: AsyncClient<WebSleeper>,
 }
 
 #[wasm_bindgen]
@@ -37,7 +37,7 @@ impl EsploraClient {
     pub fn new(url: &str, max_retries: usize) -> JsResult<EsploraClient> {
         let client = Builder::new(url)
             .max_retries(max_retries)
-            .build_async_with_sleeper::<WasmSleeper>()?;
+            .build_async_with_sleeper::<WebSleeper>()?;
         Ok(EsploraClient { client })
     }
 
@@ -74,9 +74,9 @@ impl EsploraClient {
     }
 }
 
-struct WasmSleep(JsFuture);
+struct WebSleep(JsFuture);
 
-impl Future for WasmSleep {
+impl Future for WebSleep {
     type Output = ();
     fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<()> {
         // delegate to the inner JsFuture
@@ -85,28 +85,23 @@ impl Future for WasmSleep {
 }
 
 // SAFETY: Wasm is single-threaded; the value is never accessed concurrently.
-unsafe impl Send for WasmSleep {}
+unsafe impl Send for WebSleep {}
 
 #[derive(Clone, Copy)]
-struct WasmSleeper;
+struct WebSleeper;
 
-impl Sleeper for WasmSleeper {
-    type Sleep = WasmSleep;
+impl Sleeper for WebSleeper {
+    type Sleep = WebSleep;
 
     fn sleep(dur: Duration) -> Self::Sleep {
-        let ms = dur.as_millis();
+        let ms = dur.as_millis() as i32;
         let promise = Promise::new(&mut |resolve, _reject| {
-            let cb = Closure::once_into_js(move || resolve.call0(&JsValue::NULL).unwrap()).unchecked_into::<Function>();
-
-            // globalThis.setTimeout(cb, ms);
-            let g = global();
-            let set_timeout = Reflect::get(&g, &JsValue::from_str("setTimeout"))
-                .unwrap_or_else(|_| JsError::new("setTimeout not found").into())
-                .unchecked_into::<Function>();
-
-            set_timeout.call2(&g, &cb, &JsValue::from_f64(ms as f64)).unwrap();
+            let cb = Closure::once_into_js(move || resolve.call0(&JsValue::NULL).unwrap());
+            web_sys::window()
+                .unwrap()
+                .set_timeout_with_callback_and_timeout_and_arguments_0(cb.unchecked_ref::<Function>(), ms)
+                .unwrap();
         });
-
-        WasmSleep(JsFuture::from(promise))
+        WebSleep(JsFuture::from(promise))
     }
 }
