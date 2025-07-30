@@ -28,7 +28,7 @@ describe("Esplora client", () => {
 
   let feeRate: FeeRate;
   let wallet: Wallet;
-  const esploraClient = new EsploraClient(esploraUrl);
+  const esploraClient = new EsploraClient(esploraUrl, 0);
 
   it("creates a new wallet", () => {
     wallet = Wallet.create(network, externalDescriptor, internalDescriptor);

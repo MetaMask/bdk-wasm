@@ -23,7 +23,7 @@ async fn test_browser() {
         "wpkh(tprv8ZgxMBicQKsPe2qpAuh1K1Hig72LCoP4JgNxZM2ZRWHZYnpuw5oHoGBsQm7Qb8mLgPpRJVn3hceWgGQRNbPD6x1pp2Qme2YFRAPeYh7vmvE/84'/1'/0'/0/*)#a6kgzlgq".into(),
          "wpkh(tprv8ZgxMBicQKsPe2qpAuh1K1Hig72LCoP4JgNxZM2ZRWHZYnpuw5oHoGBsQm7Qb8mLgPpRJVn3hceWgGQRNbPD6x1pp2Qme2YFRAPeYh7vmvE/84'/1'/0'/1/*)#vwnfl2cc".into(),
     ).expect("wallet");
-    let blockchain_client = EsploraClient::new("https://mutinynet.com/api").expect("esplora_client");
+    let blockchain_client = EsploraClient::new("https://mutinynet.com/api", 6).expect("esplora_client");
 
     let block_height = wallet.latest_checkpoint().height();
     assert_eq!(block_height, 0);

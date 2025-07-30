@@ -38,7 +38,6 @@ web-sys = { version = "0.3.77", default-features = false }
 
 # Compatibility to compile to WASM
 getrandom = { version = "0.2.16", features = ["js"] }
-gloo-timers = { version = "0.3.0", features = ["futures"] }
 
 # Bitcoin dependencies
 bdk_wallet = { version = "2.0.0" }

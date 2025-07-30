@@ -6,29 +6,38 @@ use bdk_wallet::{
     chain::spk_client::{FullScanRequest as BdkFullScanRequest, SyncRequest as BdkSyncRequest},
     KeychainKind,
 };
-use wasm_bindgen::prelude::wasm_bindgen;
+use wasm_bindgen::{
+    prelude::{wasm_bindgen, Closure},
+    JsCast, JsValue,
+};
+use wasm_bindgen_futures::JsFuture;
+use web_sys::js_sys::{Function, Promise};
 
 use crate::{
     result::JsResult,
     types::{FeeEstimates, FullScanRequest, SyncRequest, Transaction, Txid, Update},
 };
-use std::time::Duration;
+use std::{
+    future::Future,
+    pin::Pin,
+    task::{Context, Poll},
+    time::Duration,
+};
 
 use bdk_esplora::esplora_client::Sleeper;
-use gloo_timers::future::{sleep, TimeoutFuture};
-
-use crate::utils::SendSyncWrapper;
 
 #[wasm_bindgen]
 pub struct EsploraClient {
-    client: AsyncClient<WebSleeper>,
+    client: AsyncClient<WasmSleeper>,
 }
 
 #[wasm_bindgen]
 impl EsploraClient {
     #[wasm_bindgen(constructor)]
-    pub fn new(url: &str) -> JsResult<EsploraClient> {
-        let client = Builder::new(url).build_async_with_sleeper::<WebSleeper>()?;
+    pub fn new(url: &str, max_retries: usize) -> JsResult<EsploraClient> {
+        let client = Builder::new(url)
+            .max_retries(max_retries)
+            .build_async_with_sleeper::<WasmSleeper>()?;
         Ok(EsploraClient { client })
     }
 
@@ -65,13 +74,34 @@ impl EsploraClient {
     }
 }
 
-#[derive(Clone)]
-struct WebSleeper;
+struct WasmSleep(JsFuture);
 
-impl Sleeper for WebSleeper {
-    type Sleep = SendSyncWrapper<TimeoutFuture>;
+impl Future for WasmSleep {
+    type Output = ();
+    fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<()> {
+        // delegate to the inner JsFuture
+        Pin::new(&mut self.get_mut().0).poll(cx).map(|_| ())
+    }
+}
+
+// SAFETY: Wasm is single-threaded; the value is never accessed concurrently.
+unsafe impl Send for WasmSleep {}
+
+#[derive(Clone, Copy)]
+struct WasmSleeper;
+
+impl Sleeper for WasmSleeper {
+    type Sleep = WasmSleep;
 
     fn sleep(dur: Duration) -> Self::Sleep {
-        SendSyncWrapper(sleep(dur))
+        let ms = dur.as_millis() as i32;
+        let promise = Promise::new(&mut |resolve, _reject| {
+            let cb = Closure::once_into_js(move || resolve.call0(&JsValue::NULL).unwrap());
+            web_sys::window()
+                .unwrap()
+                .set_timeout_with_callback_and_timeout_and_arguments_0(cb.unchecked_ref::<Function>(), ms)
+                .unwrap();
+        });
+        WasmSleep(JsFuture::from(promise))
     }
 }
