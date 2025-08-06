@@ -63,7 +63,9 @@ describe("Wallet", () => {
       wallet
         .build_tx()
         .fee_rate(new FeeRate(BigInt(1)))
-        .add_recipient(new Recipient(recipientAddress, sendAmount))
+        .add_recipient(
+          new Recipient(recipientAddress.script_pubkey, sendAmount)
+        )
         .finish();
     } catch (error) {
       expect(error).toBeInstanceOf(BdkError);
