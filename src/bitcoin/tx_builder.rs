@@ -1,8 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use bdk_wallet::{
-    bitcoin::ScriptBuf as BdkScriptBuf, error::CreateTxError, TxOrdering as BdkTxOrdering, Wallet as BdkWallet,
-};
+use bdk_wallet::{error::CreateTxError, TxOrdering as BdkTxOrdering, Wallet as BdkWallet};
 use serde::Serialize;
 use wasm_bindgen::prelude::wasm_bindgen;
 
@@ -22,9 +20,9 @@ pub struct TxBuilder {
     unspendable: Vec<OutPoint>,
     fee_rate: FeeRate,
     drain_wallet: bool,
-    drain_to: Option<BdkScriptBuf>,
+    drain_to: Option<ScriptBuf>,
     allow_dust: bool,
-    ordering: BdkTxOrdering,
+    ordering: TxOrdering,
 }
 
 #[wasm_bindgen]
@@ -39,7 +37,7 @@ impl TxBuilder {
             drain_wallet: false,
             allow_dust: false,
             drain_to: None,
-            ordering: BdkTxOrdering::default(),
+            ordering: BdkTxOrdering::default().into(),
         }
     }
 
@@ -100,7 +98,7 @@ impl TxBuilder {
     /// If you choose not to set any recipients, you should provide the utxos that the
     /// transaction should spend via [`add_utxos`].
     pub fn drain_to(mut self, script_pubkey: ScriptBuf) -> Self {
-        self.drain_to = Some(script_pubkey.into());
+        self.drain_to = Some(script_pubkey);
         self
     }
 
@@ -114,7 +112,7 @@ impl TxBuilder {
 
     /// Choose the ordering for inputs and outputs of the transaction
     pub fn ordering(mut self, ordering: TxOrdering) -> Self {
-        self.ordering = ordering.into();
+        self.ordering = ordering;
         self
     }
 
@@ -137,7 +135,7 @@ impl TxBuilder {
         }
 
         if let Some(drain_recipient) = self.drain_to {
-            builder.drain_to(drain_recipient);
+            builder.drain_to(drain_recipient.into());
         }
 
         let psbt = builder.finish()?;

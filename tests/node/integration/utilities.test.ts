@@ -3,7 +3,6 @@ import {
   Network,
   seed_to_descriptor,
   seed_to_xpriv,
-  Wallet,
   xpriv_to_descriptor,
   xpub_to_descriptor,
 } from "../../../pkg/bitcoindevkit";
@@ -11,35 +10,10 @@ import { mnemonicToSeedSync } from "bip39";
 
 describe("Utilities", () => {
   const addressType: AddressType = "p2wpkh";
-  const network: Network = "bitcoin";
+  const network: Network = "testnet";
   const seed = mnemonicToSeedSync(
-    "spread raise short crane omit tent fringe mandate neglect detail suspect cradle"
+    "journey embrace permit coil indoor stereo welcome maid movie easy clock spider tent slush bright luxury awake waste legal modify awkward answer acid goose"
   );
-
-  it.only("test", async () => {
-    const desc = seed_to_descriptor(seed, network, "p2wpkh");
-
-    const w = Wallet.create(network, desc.external, desc.internal);
-    const eaddresses = w.reveal_addresses_to("external", 2);
-    const iaddresses = w.reveal_addresses_to("internal", 2);
-
-    eaddresses.forEach((add) => {
-      console.log(
-        add.address.toString(),
-        add.address.scripthash,
-        add.address.script_pubkey.toString(),
-        add.address.script_pubkey.to_hex_string()
-      );
-    });
-    iaddresses.forEach((add) => {
-      console.log(
-        add.address.toString(),
-        add.address.scripthash,
-        add.address.script_pubkey.toString(),
-        add.address.script_pubkey.to_hex_string()
-      );
-    });
-  });
 
   it("generates xpriv from seed", async () => {
     const xpriv = seed_to_xpriv(seed, network);

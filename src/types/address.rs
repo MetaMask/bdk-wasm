@@ -4,10 +4,7 @@ use bdk_wallet::{
     bitcoin::{Address as BdkAddress, AddressType as BdkAddressType, Network as BdkNetwork, ScriptBuf as BdkScriptBuf},
     AddressInfo as BdkAddressInfo,
 };
-use bitcoin::{
-    address::ParseError,
-    hashes::{sha256, Hash},
-};
+use bitcoin::address::ParseError;
 use wasm_bindgen::prelude::wasm_bindgen;
 
 use crate::{
@@ -104,11 +101,6 @@ impl Address {
     pub fn script_pubkey(&self) -> ScriptBuf {
         self.0.script_pubkey().into()
     }
-
-    #[wasm_bindgen(getter)]
-    pub fn scripthash(&self) -> String {
-        sha256::Hash::hash(self.0.script_pubkey().as_bytes()).to_string()
-    }
 }
 
 impl From<BdkAddress> for Address {
@@ -159,6 +151,15 @@ impl Deref for ScriptBuf {
 
 #[wasm_bindgen]
 impl ScriptBuf {
+    pub fn from_hex(s: &str) -> JsResult<Self> {
+        let script = BdkScriptBuf::from_hex(s)?;
+        Ok(script.into())
+    }
+
+    pub fn from_bytes(bytes: Vec<u8>) -> Self {
+        BdkScriptBuf::from_bytes(bytes).into()
+    }
+
     #[allow(clippy::inherent_to_string)]
     #[wasm_bindgen(js_name = toString)]
     pub fn to_string(&self) -> String {
