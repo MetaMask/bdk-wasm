@@ -4,7 +4,10 @@ use bdk_wallet::{
     bitcoin::{Address as BdkAddress, AddressType as BdkAddressType, Network as BdkNetwork, ScriptBuf as BdkScriptBuf},
     AddressInfo as BdkAddressInfo,
 };
-use bitcoin::address::ParseError;
+use bitcoin::{
+    address::ParseError,
+    hashes::{sha256, Hash},
+};
 use wasm_bindgen::prelude::wasm_bindgen;
 
 use crate::{
@@ -96,6 +99,16 @@ impl Address {
     pub fn to_string(&self) -> String {
         self.0.to_string()
     }
+
+    #[wasm_bindgen(getter)]
+    pub fn script_pubkey(&self) -> ScriptBuf {
+        self.0.script_pubkey().into()
+    }
+
+    #[wasm_bindgen(getter)]
+    pub fn scripthash(&self) -> String {
+        sha256::Hash::hash(self.0.script_pubkey().as_bytes()).to_string()
+    }
 }
 
 impl From<BdkAddress> for Address {
@@ -133,6 +146,7 @@ impl From<ParseError> for BdkError {
 /// `ScriptBuf` is the most common script type that has the ownership over the contents of the
 /// script. It has a close relationship with its borrowed counterpart, [`Script`].
 #[wasm_bindgen]
+#[derive(Clone)]
 pub struct ScriptBuf(BdkScriptBuf);
 
 impl Deref for ScriptBuf {
@@ -153,6 +167,18 @@ impl ScriptBuf {
 
     pub fn as_bytes(&self) -> Vec<u8> {
         self.0.as_bytes().to_vec()
+    }
+
+    pub fn to_asm_string(&self) -> String {
+        self.0.to_asm_string()
+    }
+
+    pub fn to_hex_string(&self) -> String {
+        self.0.to_hex_string()
+    }
+
+    pub fn is_op_return(&self) -> bool {
+        self.0.is_op_return()
     }
 }
 

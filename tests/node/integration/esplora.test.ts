@@ -8,6 +8,8 @@ import {
   UnconfirmedTx,
   Wallet,
   SignOptions,
+  Psbt,
+  TxOrdering,
 } from "../../../pkg/bitcoindevkit";
 
 // Tests are expected to run in order
@@ -69,7 +71,7 @@ describe("Esplora client", () => {
     const psbt = wallet
       .build_tx()
       .fee_rate(feeRate)
-      .add_recipient(new Recipient(recipientAddress, sendAmount))
+      .add_recipient(new Recipient(recipientAddress.script_pubkey, sendAmount))
       .finish();
 
     expect(psbt.fee().to_sat()).toBeGreaterThan(100); // We cannot know the exact fees
@@ -104,5 +106,31 @@ describe("Esplora client", () => {
         .unspendable(utxos.map((utxo) => utxo.outpoint))
         .finish();
     }).toThrow();
+  });
+
+  it("fills inputs of an output-only Psbt", () => {
+    const psbtBase64 =
+      "cHNidP8BAI4CAAAAAAM1gwEAAAAAACJRIORP1Ndiq325lSC/jMG0RlhATHYmuuULfXgEHUM3u5i4AAAAAAAAAAAxai8AAUSx+i9Igg4HWdcpyagCs8mzuRCklgA7nRMkm69rAAAAAAAAAAAAAQACAAAAACp2AAAAAAAAFgAUArpyBMj+3+/wQDj+orDWG4y4yfUAAAAAAAAAAAA=";
+    const template = Psbt.from_string(psbtBase64);
+
+    let builder = wallet
+      .build_tx()
+      .fee_rate(new FeeRate(BigInt(1)))
+      .ordering(TxOrdering.Untouched);
+
+    for (const txout of template.unsigned_tx.output) {
+      if (wallet.is_mine(txout.script_pubkey)) {
+        builder = builder.drain_to(txout.script_pubkey);
+      } else {
+        const recipient = new Recipient(txout.script_pubkey, txout.value);
+        builder = builder.add_recipient(recipient);
+      }
+    }
+
+    const psbt = builder.finish();
+    expect(psbt.unsigned_tx.output).toHaveLength(
+      template.unsigned_tx.output.length
+    );
+    expect(psbt.unsigned_tx.tx_out(2).value.to_btc()).toBeGreaterThan(0);
   });
 });

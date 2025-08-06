@@ -10,6 +10,7 @@ use bdk_wallet::{
 use wasm_bindgen::prelude::wasm_bindgen;
 
 use crate::result::JsResult;
+use crate::types::ScriptBuf;
 
 use super::{Address, Amount, FeeRate, Transaction};
 
@@ -33,11 +34,25 @@ impl DerefMut for Psbt {
 
 #[wasm_bindgen]
 impl Psbt {
+    /// Extracts the [`Transaction`] from a [`Psbt`] by filling in the available signature information.
+    ///
+    /// ## Errors
+    ///
+    /// [`ExtractTxError`] variants will contain either the [`Psbt`] itself or the [`Transaction`]
+    /// that was extracted. These can be extracted from the Errors in order to recover.
+    /// See the error documentation for info on the variants. In general, it covers large fees.
+    pub fn extract_tx_fee_rate_limit(self) -> JsResult<Transaction> {
+        let tx = self.0.extract_tx_fee_rate_limit()?;
+        Ok(tx.into())
+    }
+
+    /// An alias for [`extract_tx_fee_rate_limit`].
     pub fn extract_tx(self) -> JsResult<Transaction> {
         let tx = self.0.extract_tx()?;
         Ok(tx.into())
     }
 
+    /// Extracts the [`Transaction`] from a [`Psbt`] by filling in the available signature information.
     pub fn extract_tx_with_fee_rate_limit(self, max_fee_rate: FeeRate) -> JsResult<Transaction> {
         let tx = self.0.extract_tx_with_fee_rate_limit(max_fee_rate.into())?;
         Ok(tx.into())
@@ -48,14 +63,39 @@ impl Psbt {
         Ok(fee.into())
     }
 
+    /// The total transaction fee amount, sum of input amounts minus sum of output amounts, in sats.
+    /// If the PSBT is missing a TxOut for an input returns None.
     pub fn fee_amount(&self) -> Option<Amount> {
         let fee_amount = self.0.fee_amount();
         fee_amount.map(Into::into)
     }
 
+    /// The transaction's fee rate. This value will only be accurate if calculated AFTER the
+    /// `Psbt` is finalized and all witness/signature data is added to the transaction.
+    /// If the PSBT is missing a TxOut for an input returns None.
     pub fn fee_rate(&self) -> Option<FeeRate> {
         let fee_rate = self.0.fee_rate();
         fee_rate.map(Into::into)
+    }
+
+    /// The version number of this PSBT. If omitted, the version number is 0.
+    #[wasm_bindgen(getter)]
+    pub fn version(&self) -> u32 {
+        self.0.version
+    }
+
+    /// Combines this [`Psbt`] with `other` PSBT as described by BIP 174. In-place.
+    ///
+    /// In accordance with BIP 174 this function is commutative i.e., `A.combine(B) == B.combine(A)`
+    pub fn combine(&mut self, other: Psbt) -> JsResult<()> {
+        self.0.combine(other.into())?;
+        Ok(())
+    }
+
+    /// The unsigned transaction, scriptSigs and witnesses for each input must be empty.
+    #[wasm_bindgen(getter)]
+    pub fn unsigned_tx(&self) -> Transaction {
+        self.0.unsigned_tx.clone().into()
     }
 
     /// Serialize the PSBT to a string in base64 format
@@ -92,30 +132,40 @@ impl From<Psbt> for BdkPsbt {
 #[wasm_bindgen]
 #[derive(Clone)]
 pub struct Recipient {
-    address: Address,
-    amount: Amount,
+    script_pubkey: BdkScriptBuf,
+    amount: BdkAmount,
 }
 
 #[wasm_bindgen]
 impl Recipient {
     #[wasm_bindgen(constructor)]
-    pub fn new(address: Address, amount: Amount) -> Self {
-        Recipient { address, amount }
+    pub fn new(script_pubkey: ScriptBuf, amount: Amount) -> Self {
+        Recipient {
+            script_pubkey: script_pubkey.into(),
+            amount: amount.into(),
+        }
+    }
+
+    pub fn from_address(address: Address, amount: Amount) -> Self {
+        Recipient {
+            script_pubkey: address.script_pubkey().into(),
+            amount: amount.into(),
+        }
     }
 
     #[wasm_bindgen(getter)]
-    pub fn address(&self) -> Address {
-        self.address.clone()
+    pub fn script_pubkey(&self) -> ScriptBuf {
+        self.script_pubkey.clone().into()
     }
 
     #[wasm_bindgen(getter)]
     pub fn amount(&self) -> Amount {
-        self.amount
+        self.amount.into()
     }
 }
 
 impl From<Recipient> for (BdkScriptBuf, BdkAmount) {
     fn from(r: Recipient) -> Self {
-        (r.address().script_pubkey(), r.amount().into())
+        (r.script_pubkey.clone(), r.amount)
     }
 }
