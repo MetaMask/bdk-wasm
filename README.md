@@ -1,3 +1,6 @@
+> [!WARNING]
+> This repository has [moved to the official Bitcoindevkit organization](https://github.com/bitcoindevkit/bdk-wasm) and will no longer be maintained.
+
 <div align="center">
   <h1>The Bitcoin Dev Kit: WebAssembly</h1>
 
