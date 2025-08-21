@@ -14,7 +14,7 @@ use super::Txid;
 
 /// A reference to a transaction output.
 #[wasm_bindgen]
-#[derive(Clone, PartialEq, Eq)]
+#[derive(Clone, Copy, PartialEq, Eq)]
 pub struct OutPoint(BdkOutPoint);
 
 impl Deref for OutPoint {
@@ -76,6 +76,7 @@ impl From<OutPoint> for BdkOutPoint {
 ///
 /// An output that is not yet spent by an input is called Unspent Transaction Output ("UTXO").
 #[wasm_bindgen]
+#[derive(Clone)]
 pub struct TxOut(BdkTxOut);
 
 impl Deref for TxOut {
@@ -129,6 +130,7 @@ impl From<TxOut> for BdkTxOut {
 
 /// A reference to a transaction output.
 #[wasm_bindgen]
+#[derive(Clone)]
 pub struct LocalOutput(BdkLocalOutput);
 
 impl Deref for LocalOutput {

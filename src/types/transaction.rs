@@ -138,6 +138,7 @@ impl From<Transaction> for BdkTransaction {
 
 /// A bitcoin transaction hash/transaction ID.
 #[wasm_bindgen]
+#[derive(Clone, Copy)]
 pub struct Txid(BdkTxid);
 
 impl Deref for Txid {

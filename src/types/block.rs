@@ -5,6 +5,7 @@ use wasm_bindgen::prelude::wasm_bindgen;
 
 /// A reference to a block in the canonical chain.
 #[wasm_bindgen]
+#[derive(Clone)]
 pub struct BlockId(BdkBlockId);
 
 #[wasm_bindgen]

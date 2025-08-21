@@ -10,6 +10,7 @@ use super::BlockId;
 /// Checkpoints are cheaply cloneable and are useful to find the agreement point between two sparse
 /// block chains.
 #[wasm_bindgen]
+#[derive(Clone)]
 pub struct CheckPoint(BdkCheckPoint);
 
 #[wasm_bindgen]

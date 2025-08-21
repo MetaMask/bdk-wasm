@@ -24,7 +24,7 @@ jobs:
       - name: Rust Cache
         uses: Swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3
       - name: Build
-        run: wasm-pack build --scope metamask --features "esplora"
+        run: wasm-pack build --scope bitcoindevkit --features "esplora"
       - uses: actions/cache@v4
         with:
           path: |

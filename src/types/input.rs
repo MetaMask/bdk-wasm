@@ -11,6 +11,8 @@ use crate::types::{OutPoint, ScriptBuf};
 /// that it spends and set of scripts that satisfy its spending
 /// conditions.
 #[wasm_bindgen]
+#[derive(Clone)]
+
 pub struct TxIn(BdkTxIn);
 
 impl Deref for TxIn {

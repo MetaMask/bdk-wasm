@@ -19,7 +19,7 @@ of the PR were done in a specific way -->
 #### All Submissions:
 
 - [ ] I've signed all my commits
-- [ ] I followed the [contribution guidelines](https://github.com/MetaMask/bdk-wasm/blob/master/CONTRIBUTING.md)
+- [ ] I followed the [contribution guidelines](https://github.com/bitcoindevkit/bdk-wasm/blob/master/CONTRIBUTING.md)
 - [ ] I ran `cargo fmt` and `cargo clippy` before committing
 
 #### New Features:

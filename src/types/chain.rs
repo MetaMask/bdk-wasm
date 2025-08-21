@@ -72,6 +72,7 @@ impl From<FullScanRequest> for BdkFullScanRequest<KeychainKind> {
 
 /// An update to [`Wallet`].
 #[wasm_bindgen]
+#[derive(Clone)]
 pub struct Update(BdkUpdate);
 
 impl Deref for Update {

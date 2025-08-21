@@ -85,6 +85,7 @@ pub struct SentAndReceived(pub Amount, pub Amount);
 
 /// A set of denominations in which amounts can be expressed.
 #[wasm_bindgen]
+#[derive(Clone, Copy, PartialEq, Eq)]
 pub enum Denomination {
     /// BTC
     Bitcoin = "BTC",

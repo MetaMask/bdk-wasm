@@ -41,6 +41,7 @@ impl From<FeeEstimates> for HashMap<u16, f64> {
 /// This is an integer newtype representing fee rate in `sat/kwu`. It provides protection against mixing
 /// up the types as well as basic formatting features.
 #[wasm_bindgen]
+#[derive(Clone, Copy)]
 pub struct FeeRate(BdkFeeRate);
 
 impl Deref for FeeRate {

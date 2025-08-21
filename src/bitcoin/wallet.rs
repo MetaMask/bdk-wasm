@@ -168,18 +168,18 @@ impl Wallet {
         TxBuilder::new(self.0.clone())
     }
 
-    pub fn calculate_fee(&self, tx: Transaction) -> JsResult<Amount> {
-        let fee = self.0.borrow().calculate_fee(&tx.into())?;
+    pub fn calculate_fee(&self, tx: &Transaction) -> JsResult<Amount> {
+        let fee = self.0.borrow().calculate_fee(tx)?;
         Ok(fee.into())
     }
 
-    pub fn calculate_fee_rate(&self, tx: Transaction) -> JsResult<FeeRate> {
-        let fee_rate = self.0.borrow().calculate_fee_rate(&tx.into())?;
+    pub fn calculate_fee_rate(&self, tx: &Transaction) -> JsResult<FeeRate> {
+        let fee_rate = self.0.borrow().calculate_fee_rate(tx)?;
         Ok(fee_rate.into())
     }
 
-    pub fn sent_and_received(&self, tx: Transaction) -> JsResult<SentAndReceived> {
-        let (sent, received) = self.0.borrow().sent_and_received(&tx.into());
+    pub fn sent_and_received(&self, tx: &Transaction) -> JsResult<SentAndReceived> {
+        let (sent, received) = self.0.borrow().sent_and_received(tx);
         Ok(SentAndReceived(sent.into(), received.into()))
     }
 

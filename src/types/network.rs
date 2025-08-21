@@ -40,7 +40,7 @@ impl From<BdkNetwork> for NetworkKind {
 
 /// The cryptocurrency network to act on.
 #[wasm_bindgen]
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Eq)]
 pub enum Network {
     /// Mainnet Bitcoin.
     Bitcoin = "bitcoin",

@@ -16,6 +16,7 @@ use super::{Address, Amount, FeeRate, Transaction};
 
 /// A Partially Signed Transaction.
 #[wasm_bindgen]
+#[derive(Clone)]
 pub struct Psbt(BdkPsbt);
 
 impl Deref for Psbt {
@@ -113,6 +114,11 @@ impl Psbt {
     /// Serialize `Psbt` to JSON.
     pub fn to_json(&self) -> String {
         to_string(&self.0).expect("Serialization should not fail")
+    }
+
+    #[wasm_bindgen(js_name = clone)]
+    pub fn js_clone(&self) -> Psbt {
+        self.clone()
     }
 }
 

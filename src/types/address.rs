@@ -48,6 +48,11 @@ impl AddressInfo {
     pub fn address_type(&self) -> Option<AddressType> {
         self.0.address_type().map(Into::into)
     }
+
+    #[wasm_bindgen(js_name = clone)]
+    pub fn js_clone(&self) -> AddressInfo {
+        self.clone()
+    }
 }
 
 impl Deref for AddressInfo {
@@ -100,6 +105,11 @@ impl Address {
     #[wasm_bindgen(getter)]
     pub fn script_pubkey(&self) -> ScriptBuf {
         self.0.script_pubkey().into()
+    }
+
+    #[wasm_bindgen(js_name = clone)]
+    pub fn js_clone(&self) -> Address {
+        self.clone()
     }
 }
 
@@ -181,6 +191,11 @@ impl ScriptBuf {
     pub fn is_op_return(&self) -> bool {
         self.0.is_op_return()
     }
+
+    #[wasm_bindgen(js_name = clone)]
+    pub fn js_clone(&self) -> ScriptBuf {
+        self.clone()
+    }
 }
 
 impl From<BdkScriptBuf> for ScriptBuf {
@@ -197,6 +212,7 @@ impl From<ScriptBuf> for BdkScriptBuf {
 
 /// The different types of addresses.
 #[wasm_bindgen]
+#[derive(Clone, Copy, PartialEq, Eq)]
 pub enum AddressType {
     /// Pay to pubkey hash.
     P2pkh = "p2pkh",

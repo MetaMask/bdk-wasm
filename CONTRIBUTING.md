@@ -12,14 +12,14 @@ Any bug may cost users real money. That being said, we deeply welcome people
 contributing for the first time to an open source project or picking up Rust while
 contributing. Don't be shy, you'll learn.
 
-The project is currently maintained by the [MetaMask](https://github.com/MetaMask) organization.
+The `bdk-wasm` project was originally created and maintained by the [MetaMask](https://github.com/MetaMask) organization.
 
 ## Communications Channels
 
 Communication about BDK happens primarily on the [BDK Discord](https://discord.gg/dstn4dQ).
 
-Discussion about code base improvements happens in GitHub [issues](https://github.com/MetaMask/bdk-wasm/issues) and
-on [pull requests](https://github.com/MetaMask/bdk-wasm/pulls).
+Discussion about code base improvements happens in GitHub [issues](https://github.com/bitcoindevkit/bdk-wasm/issues) and
+on [pull requests](https://github.com/bitcoindevkit/bdk-wasm/pulls).
 
 ## Contribution Workflow
 

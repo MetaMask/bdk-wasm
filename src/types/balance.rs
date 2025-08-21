@@ -7,6 +7,7 @@ use super::Amount;
 
 /// Balance, differentiated into various categories.
 #[wasm_bindgen]
+#[derive(Clone)]
 pub struct Balance(BdkBalance);
 
 #[wasm_bindgen]
